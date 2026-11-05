@@ -7,6 +7,7 @@ import {
   Building2,
   CalendarCheck,
   ChevronDown,
+  Hexagon,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -61,10 +62,12 @@ function isActive(pathname: string, href: string) {
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2" aria-label="StudioHive home">
-      <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        <Aperture className="size-5" />
+      {/* Hive mark: deep-blue hexagon with a white aperture lens */}
+      <span className="relative flex size-9 items-center justify-center">
+        <Hexagon className="absolute size-9 fill-primary text-primary" strokeWidth={1.25} />
+        <Aperture className="relative size-4 text-primary-foreground" strokeWidth={2.25} />
       </span>
-      <span className="text-lg font-semibold tracking-tight text-foreground">
+      <span className="text-lg font-bold tracking-tight text-foreground">
         Studio<span className="text-primary">Hive</span>
       </span>
     </Link>
@@ -76,35 +79,35 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8">
+      <div className="mx-auto grid h-16 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center">
           <Logo />
-
-          {/* Desktop nav — active link gets a soft blue pill */}
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
-            {NAV_LINKS.map((link) => {
-              const active = isActive(pathname, link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-sm transition-colors",
-                    active
-                      ? "bg-primary/10 font-medium text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
+        {/* Nav centered between the logo and the avatar */}
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+          {NAV_LINKS.map((link) => {
+            const active = isActive(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm transition-colors",
+                  active
+                    ? "bg-primary/10 font-medium text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
         {/* TODO(auth): replace mock state — `MOCK_USER` + tenant links — with session data */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           {MOCK_AUTHENTICATED ? (
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -182,8 +185,9 @@ export function SiteHeader() {
             <SheetContent side="right" className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Aperture className="size-4" />
+                  <span className="relative flex size-8 items-center justify-center">
+                    <Hexagon className="absolute size-8 fill-primary text-primary" strokeWidth={1.25} />
+                    <Aperture className="relative size-3.5 text-primary-foreground" strokeWidth={2.25} />
                   </span>
                   StudioHive
                 </SheetTitle>
