@@ -129,3 +129,45 @@
     @apply font-sans;
   }
 }
+
+/* Swiper banner theming (src/components/home/Banner.tsx) */
+.banner .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+.banner .swiper-pagination-bullet-active {
+  background: #ffffff;
+  width: 24px;
+}
+.banner .swiper-button-next,
+.banner .swiper-button-prev {
+  width: 42px;
+  height: 42px;
+  top: auto;
+  bottom: 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  transition: background 0.2s ease;
+}
+.banner .swiper-button-next:hover,
+.banner .swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+.banner .swiper-button-next::after,
+.banner .swiper-button-prev::after {
+  font-size: 18px;
+}
+.banner .swiper-button-prev {
+  left: 24px;
+}
+.banner .swiper-button-next {
+  right: 24px;
+}
+
+.banner .swiper-notification { display: none; }
