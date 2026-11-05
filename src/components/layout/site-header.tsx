@@ -166,10 +166,10 @@ export function SiteHeader() {
           ) : (
             // Unauthenticated state per spec: Log in / Sign up actions
             <div className="hidden items-center gap-1 md:flex">
-              <Button variant="ghost" render={<Link href="/login" />}>
+              <Button variant="ghost" render={<Link href="/login" />} nativeButton={false}>
                 Log in
               </Button>
-              <Button render={<Link href="/register" />}>Sign up</Button>
+              <Button render={<Link href="/register" />} nativeButton={false}>Sign up</Button>
             </div>
           )}
 
