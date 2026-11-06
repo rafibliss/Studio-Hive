@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import {
   Aperture,
   Building2,
@@ -50,13 +51,40 @@ const MOCK_USER = {
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
-  { label: "How It Works", href: "/how-it-works" },
+  // Section anchor on the homepage — the navbar smooth-scrolls to it
+  { label: "How It Works", href: "/#how-it-works" },
   { label: "About Us", href: "/about" },
 ] as const;
 
 function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const bareHref = href.split("#")[0];
+  if (bareHref === "/") return pathname === "/";
+  return pathname === bareHref || pathname.startsWith(`${bareHref}/`);
+}
+
+/**
+ * Hash links point at sections inside a page. When we're already on the
+ * target page, intercept the click and smooth-scroll to the section
+ * instead of letting <Link> perform a (near-instant) hash jump.
+ */
+function scrollToHashSection(
+  e: ReactMouseEvent<HTMLAnchorElement>,
+  href: string,
+  pathname: string
+) {
+  const hashIndex = href.indexOf("#");
+  if (hashIndex === -1) return;
+  const targetPath = href.slice(0, hashIndex) || "/";
+  if (pathname !== targetPath) return;
+  const section = document.getElementById(href.slice(hashIndex + 1));
+  if (!section) return;
+  e.preventDefault();
+  // Respect the OS "reduce motion" preference
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  section.scrollIntoView({
+    behavior: reduceMotion ? "auto" : "smooth",
+    block: "start",
+  });
 }
 
 function Logo() {
@@ -93,6 +121,7 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 aria-current={active ? "page" : undefined}
+                onClick={(e) => scrollToHashSection(e, link.href, pathname)}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm transition-colors",
                   active
@@ -203,6 +232,7 @@ export function SiteHeader() {
                         <Link
                           href={link.href}
                           aria-current={active ? "page" : undefined}
+                          onClick={(e) => scrollToHashSection(e, link.href, pathname)}
                           className={cn(
                             "rounded-lg px-3 py-2 text-sm transition-colors",
                             active

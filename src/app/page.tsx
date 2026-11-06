@@ -3,6 +3,8 @@ import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FeaturedStudios } from "@/components/home/featured-studios";
 import { StudioCategories } from "@/components/home/studio-categories";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { HostGuarantee } from "@/components/home/host-guarantee";
 import { Banner } from "@/components/home/Banner";
 
 export default function Home() {
@@ -51,6 +53,46 @@ export default function Home() {
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* How Booking Works — scroll target for the navbar "How It Works" link.
+          Section band: light-blue wash + top border separates it from the
+          featured-studios band above. */}
+      <section
+        id="how-it-works"
+        className="scroll-mt-16 border-y border-border bg-secondary/40"
+      >
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <header className="mb-10 flex flex-col items-start gap-3">
+            <h2 className="text-3xl font-bold tracking-tight">
+              How Booking Works
+            </h2>
+            <p className="max-w-xl text-muted-foreground">
+              From first scroll to final cut — four simple steps between
+              finding a space and rolling camera.
+            </p>
+          </header>
+
+          <HowItWorks />
+        </div>
+      </section>
+
+      {/* Host Guarantee & Creator Support — plain background below the
+          tinted band, whose bottom border separates the two sections */}
+      <section aria-label="Host guarantee and creator support">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <header className="mb-10 flex flex-col items-start gap-3">
+            <h2 className="text-3xl font-bold tracking-tight">
+              Host Guarantee &amp; Creator Support
+            </h2>
+            <p className="max-w-xl text-muted-foreground">
+              Book with confidence — every reservation on StudioHive is
+              backed by platform protections from both sides of the deal.
+            </p>
+          </header>
+
+          <HostGuarantee />
         </div>
       </section>
     </>

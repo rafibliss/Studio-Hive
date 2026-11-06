@@ -127,6 +127,16 @@
   }
   html {
     @apply font-sans;
+    /* Smooth anchor scrolling for hash links (e.g. "/#how-it-works") */
+    scroll-behavior: smooth;
+    /* Keep section tops clear of the sticky navbar when jumping to anchors */
+    scroll-padding-top: 4rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 
