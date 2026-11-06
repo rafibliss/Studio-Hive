@@ -23,8 +23,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
 
-// Minimum complexity rules — mirror the backend's minimum length (8).
-// The form is only submitted once every rule passes.
+
 const PASSWORD_RULES = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
   { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
@@ -40,7 +39,7 @@ export default function RegisterPage() {
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Live password rule checklist
+
   const ruleStates = PASSWORD_RULES.map((rule) => ({
     label: rule.label,
     passed: rule.test(password),
@@ -94,7 +93,7 @@ export default function RegisterPage() {
         description: "Welcome to the hive! Log in with your new credentials.",
         type: "success",
       });
-      router.push("/login");
+      router.push("/");
     } catch {
       reportError(
         "Couldn't reach the authentication service. Please try again in a moment."
@@ -194,7 +193,7 @@ export default function RegisterPage() {
                 aria-invalid={showChecklist && !passwordValid ? true : undefined}
               />
 
-              {/* Live password rule checklist */}
+
               {showChecklist && (
                 <ul
                   className="mt-1 flex flex-col gap-1 pl-0.5"
