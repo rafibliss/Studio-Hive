@@ -55,65 +55,80 @@ function StudioPlaceholder() {
 /**
  * The canonical studio card used by the Home featured section and the
  * Explore Studios page. Pass `index` so the hardcoded ratings vary per card.
- * NOTE: the CTA uses Base UI's `render={<Link/>} nativeButton={false}`
- * (the equivalent of Radix `asChild`) to avoid nativeButton console warnings.
+ * The whole card is wrapped in a single <Link> to its detail page; the
+ * "View Details" button is a purely visual affordance (pointer-events off,
+ * hidden from the a11y tree and tab order) so only one interactive
+ * element exists and no Base UI nesting warnings fire.
  */
 export function StudioCard({ studio, index }: { studio: Studio; index: number }) {
   const rating = RATINGS[index % RATINGS.length];
   const ratingCount = RATING_COUNTS[index % RATING_COUNTS.length];
+  const detailHref = `/studios/${studio._id}`;
 
   return (
-    <Card className="overflow-hidden pt-0 pb-4 transition-shadow hover:shadow-md">
-      {/* Image with overlaid title badge */}
-      <div className="relative h-44 w-full">
-        {studio.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={studio.imageUrl}
-            alt={studio.title}
-            loading="lazy"
-            className="size-full object-cover"
-          />
-        ) : (
-          <StudioPlaceholder />
-        )}
-        <Badge
-          variant="secondary"
-          className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] bg-white/90 shadow-sm backdrop-blur-sm"
-        >
-          <span className="truncate">{studio.title}</span>
-        </Badge>
-      </div>
+    <Link
+      href={detailHref}
+      aria-label={`View details for ${studio.title}`}
+      className="group block cursor-pointer rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <Card className="overflow-hidden pt-0 pb-4 transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
+        {/* Image with overlaid title badge */}
+        <div className="relative h-44 w-full">
+          {studio.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={studio.imageUrl}
+              alt={studio.title}
+              loading="lazy"
+              className="size-full object-cover"
+            />
+          ) : (
+            <StudioPlaceholder />
+          )}
+          <Badge
+            variant="secondary"
+            className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] bg-white/90 shadow-sm backdrop-blur-sm"
+          >
+            <span className="truncate">{studio.title}</span>
+          </Badge>
+        </div>
 
-      <CardContent className="flex flex-col gap-2 pt-4">
-        <p className="text-xs font-semibold tracking-wider text-primary uppercase">
-          {studio.category ?? "Studio"}
-        </p>
-        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPinIcon className="size-3.5 shrink-0" />
-          <span className="truncate">{studio.location ?? "Location TBA"}</span>
-        </p>
-        {/* hardcoded star rating */}
-        <p className="flex items-center gap-1 text-sm">
-          <StarIcon className="size-3.5 fill-amber-400 text-amber-400" />
-          <span className="font-semibold text-foreground">{rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">({ratingCount.toLocaleString()} reviews)</span>
-        </p>
-        <p className="mt-1">
-          <span className="text-lg font-bold text-foreground">
-            ${studio.hourlyRate ?? "—"}
-          </span>
-          <span className="text-sm text-muted-foreground"> /hour</span>
-        </p>
-      </CardContent>
+        <CardContent className="flex flex-col gap-2 pt-4">
+          <p className="text-xs font-semibold tracking-wider text-primary uppercase">
+            {studio.category ?? "Studio"}
+          </p>
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MapPinIcon className="size-3.5 shrink-0" />
+            <span className="truncate">{studio.location ?? "Location TBA"}</span>
+          </p>
+          {/* hardcoded star rating */}
+          <p className="flex items-center gap-1 text-sm">
+            <StarIcon className="size-3.5 fill-amber-400 text-amber-400" />
+            <span className="font-semibold text-foreground">{rating.toFixed(1)}</span>
+            <span className="text-muted-foreground">({ratingCount.toLocaleString()} reviews)</span>
+          </p>
+          <p className="mt-1">
+            <span className="text-lg font-bold text-foreground">
+              ${studio.hourlyRate ?? "—"}
+            </span>
+            <span className="text-sm text-muted-foreground"> /hour</span>
+          </p>
+        </CardContent>
 
-      <CardFooter className="px-4">
-        {/* Detail pages not built yet — lands on the studios listing for now */}
-        <Button variant="outline" size="lg" className="w-full" render={<Link href="/studios" />} nativeButton={false}>
-          View Details
-        </Button>
-      </CardFooter>
-    </Card>
+        <CardFooter className="px-4">
+          {/* Visual affordance only — the wrapping <Link> handles navigation */}
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full pointer-events-none group-hover:bg-muted group-hover:text-foreground"
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            View Details
+          </Button>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }
 
