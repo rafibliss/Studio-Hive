@@ -14,8 +14,7 @@ const QUICK_LINKS = [
   { label: "Add Your Studio", href: "/add-studio" },
 ] as const;
 
-// Footer categories mirror the homepage cards and link with the exact
-// category values the backend stores on studio documents
+
 const POPULAR_CATEGORIES = [
   { label: "Photo Studios", value: "Photo Studio" },
   { label: "Sound Stages", value: "Film Stage" },
@@ -31,9 +30,7 @@ const SOCIALS = [
   { label: "Facebook", href: "https://facebook.com/studiohive" },
 ] as const;
 
-// Lucide no longer ships social brand icons, so the logos are drawn
-// inline: the official X glyph (not the old Twitter bird) plus the
-// classic brand marks rendered in the same stroke style as lucide.
+
 const SOCIAL_ICON_PATHS = {
   Instagram: (
     <>
@@ -97,7 +94,7 @@ function FooterLogo() {
       className="flex items-center gap-2"
       aria-label="StudioHive home"
     >
-      {/* Inverse of the header mark: white hexagon with a blue aperture */}
+
       <span className="relative flex size-9 items-center justify-center">
         <Hexagon
           className="absolute size-9 fill-primary-foreground text-primary-foreground"
@@ -118,14 +115,14 @@ export function SiteFooter() {
 
   function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // TODO(newsletter): wire to a real subscription endpoint
+
     if (email.trim()) setSubscribed(true);
   }
 
   return (
     <footer className="border-t border-border bg-primary text-primary-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Upper grid: brand | quick links | categories | newsletter */}
+
         <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr_1.3fr] lg:py-16">
           <div className="flex flex-col items-start gap-4">
             <FooterLogo />
@@ -135,7 +132,7 @@ export function SiteFooter() {
               workshops — by the hour, from verified hosts, in cities across
               the country.
             </p>
-            {/* Socials — X uses the new glyph, not the Twitter bird */}
+
             <div className="flex items-center gap-2">
               {SOCIALS.map((social) => (
                 <a
@@ -156,7 +153,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Quick navigation */}
+
           <nav aria-label="Footer quick links" className="flex flex-col gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-foreground/60">
               Quick Links
@@ -175,7 +172,7 @@ export function SiteFooter() {
             </ul>
           </nav>
 
-          {/* Popular studio categories */}
+
           <nav
             aria-label="Popular studio categories"
             className="flex flex-col gap-3"
@@ -197,7 +194,7 @@ export function SiteFooter() {
             </ul>
           </nav>
 
-          {/* Newsletter */}
+
           <div className="flex flex-col gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-foreground/60">
               Newsletter
@@ -235,7 +232,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Bottom bar: copyright & terms notice */}
+
         <div className="flex flex-col items-center justify-between gap-3 border-t border-primary-foreground/15 py-6 text-xs text-primary-foreground/60 sm:flex-row sm:items-center">
           <p>
             © {new Date().getFullYear()} StudioHive. All rights reserved.

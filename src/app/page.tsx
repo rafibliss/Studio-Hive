@@ -11,10 +11,10 @@ import { Banner } from "@/components/home/Banner";
 export default function Home() {
   return (
     <>
-      {/* Full-bleed hero slider, directly below the sticky navbar */}
+
       <Banner />
 
-      {/* Browse by Studio Categories */}
+
       <section aria-label="Browse by studio categories">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <header className="mb-10 flex flex-col items-start gap-3">
@@ -31,8 +31,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section band: light-blue wash + borders visually separate it
-          from the banner above and the rest of the page */}
+
       <section className="border-y border-border bg-secondary/40">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <header className="mb-10 flex flex-col items-start gap-3">
@@ -47,7 +46,7 @@ export default function Home() {
 
           <FeaturedStudios />
 
-          {/* prominent CTA below the grid */}
+
           <div className="mt-12 flex justify-center">
             <Button size="lg" className="h-11 px-7 text-base" render={<Link href="/studios" />} nativeButton={false}>
               Explore All Studios
@@ -57,9 +56,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How Booking Works — scroll target for the navbar "How It Works" link.
-          Section band: light-blue wash + top border separates it from the
-          featured-studios band above. */}
+
       <section
         id="how-it-works"
         className="scroll-mt-16 border-y border-border bg-secondary/40"
@@ -79,8 +76,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Host Guarantee & Creator Support — plain background below the
-          tinted band, whose bottom border separates the two sections */}
+
       <section aria-label="Host guarantee and creator support">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <header className="mb-10 flex flex-col items-start gap-3">
@@ -97,9 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Us — scroll target for the navbar "About Us" link.
-          Section band: light-blue wash + top border separates it from the
-          host-guarantee section above. */}
+
       <section
         id="about-us"
         className="scroll-mt-16 border-y border-border bg-secondary/40"
