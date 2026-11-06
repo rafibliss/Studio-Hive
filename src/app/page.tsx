@@ -5,6 +5,7 @@ import { FeaturedStudios } from "@/components/home/featured-studios";
 import { StudioCategories } from "@/components/home/studio-categories";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { HostGuarantee } from "@/components/home/host-guarantee";
+import { AboutUs } from "@/components/home/about-us";
 import { Banner } from "@/components/home/Banner";
 
 export default function Home() {
@@ -93,6 +94,26 @@ export default function Home() {
           </header>
 
           <HostGuarantee />
+        </div>
+      </section>
+
+      {/* About Us — scroll target for the navbar "About Us" link.
+          Section band: light-blue wash + top border separates it from the
+          host-guarantee section above. */}
+      <section
+        id="about-us"
+        className="scroll-mt-16 border-y border-border bg-secondary/40"
+      >
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <header className="mb-10 flex flex-col items-start gap-3">
+            <h2 className="text-3xl font-bold tracking-tight">About Us</h2>
+            <p className="max-w-xl text-muted-foreground">
+              Who we are, why the hive exists, and what we&apos;re building
+              for creators and hosts alike.
+            </p>
+          </header>
+
+          <AboutUs />
         </div>
       </section>
     </>

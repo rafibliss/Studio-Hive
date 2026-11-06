@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import {
   Aperture,
   Building2,
@@ -51,15 +51,17 @@ const MOCK_USER = {
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
-  // Section anchor on the homepage — the navbar smooth-scrolls to it
+  // Section anchors on the homepage — the navbar smooth-scrolls to them
   { label: "How It Works", href: "/#how-it-works" },
-  { label: "About Us", href: "/about" },
+  { label: "About Us", href: "/#about-us" },
 ] as const;
 
 function isActive(pathname: string, href: string) {
-  const bareHref = href.split("#")[0];
-  if (bareHref === "/") return pathname === "/";
-  return pathname === bareHref || pathname.startsWith(`${bareHref}/`);
+  // Section anchors are highlighted by scroll position (see scroll-spy),
+  // never by the current page/route
+  if (href.includes("#")) return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 /**
@@ -105,6 +107,53 @@ function Logo() {
 export function SiteHeader() {
   const pathname = usePathname();
 
+  // Scroll-spy: hash nav links are highlighted only while their target
+  // sections are actually in view, never based on the route alone.
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const hashLinks = NAV_LINKS.filter((link) => link.href.includes("#"));
+    if (hashLinks.length === 0) return;
+
+    // Map each section id to its nav link href
+    const hrefBySectionId = new Map(
+      hashLinks.map((link) => [
+        link.href.slice(link.href.indexOf("#") + 1),
+        link.href,
+      ])
+    );
+
+    // Shrink the viewport top and bottom by 45%, leaving a thin vertical
+    // "detection band" across the middle of the screen. A section lights
+    // its link up only while that band lies inside it — i.e., while the
+    // user is actually reading that part of the page.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setActiveSection((prev) => {
+          let next = prev;
+          for (const entry of entries) {
+            const href = hrefBySectionId.get(entry.target.id);
+            if (!href) continue;
+            next = entry.isIntersecting ? href : next === href ? null : next;
+          }
+          return next;
+        });
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+    );
+
+    for (const id of hrefBySectionId.keys()) {
+      const section = document.getElementById(id);
+      if (section) observer.observe(section);
+    }
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  // Deriving instead of resetting in the effect keeps the hook lint-clean
+  const effectiveActiveSection = pathname === "/" ? activeSection : null;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-white/80 backdrop-blur-md">
       <div className="mx-auto grid h-16 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6 lg:px-8">
@@ -115,7 +164,10 @@ export function SiteHeader() {
         {/* Nav centered between the logo and the avatar */}
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {NAV_LINKS.map((link) => {
-            const active = isActive(pathname, link.href);
+            const active =
+              link.href.includes("#")
+                ? effectiveActiveSection === link.href
+                : isActive(pathname, link.href);
             return (
               <Link
                 key={link.href}
@@ -224,7 +276,10 @@ export function SiteHeader() {
               <Separator />
               <nav className="flex flex-col gap-1 px-4" aria-label="Mobile navigation">
                 {NAV_LINKS.map((link) => {
-                  const active = isActive(pathname, link.href);
+                  const active =
+                    link.href.includes("#")
+                      ? effectiveActiveSection === link.href
+                      : isActive(pathname, link.href);
                   return (
                     <SheetTrigger
                       key={link.href}
