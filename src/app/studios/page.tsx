@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { SearchIcon, RotateCwIcon, SlidersHorizontalIcon } from "lucide-react";
 import { cn } from "cn";
 import { Input } from "@/components/ui/input";
@@ -86,10 +88,37 @@ function sortStudios(studios: Studio[], sort: SortOption) {
   return sorted;
 }
 
+// Only accept query values that match a known category
+function categoryFromParam(param: string | null) {
+  return param && (CATEGORIES as readonly string[]).includes(param)
+    ? param
+    : "All";
+}
+
 export default function ExploreStudiosPage() {
+  // Wrapping in Suspense lets the page stay statically prerendered —
+  // the content that reads ?category= is client-side rendered.
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <StudioGridSkeleton />
+        </div>
+      }
+    >
+      <ExploreStudiosContent />
+    </Suspense>
+  );
+}
+
+function ExploreStudiosContent() {
+  const searchParams = useSearchParams();
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
   const [attempt, setAttempt] = React.useState(0);
-  const [filters, setFilters] = React.useState(INITIAL_FILTERS);
+  const [filters, setFilters] = React.useState(() => ({
+    ...INITIAL_FILTERS,
+    category: categoryFromParam(searchParams.get("category")),
+  }));
 
   React.useEffect(() => {
     let cancelled = false;
