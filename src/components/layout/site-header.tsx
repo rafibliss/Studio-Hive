@@ -9,7 +9,7 @@ import {
   CalendarCheck,
   ChevronDown,
   Hexagon,
-  LayoutDashboard,
+  // LayoutDashboard,
   LogOut,
   Menu,
   SquarePlus,
@@ -220,10 +220,10 @@ export function SiteHeader() {
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/dashboard" />}>
+                {/* <DropdownMenuItem render={<Link href="/dashboard" />}>
                   <LayoutDashboard />
                   Dashboard
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem render={<Link href="/add-studio" />}>
                   <SquarePlus />
                   Add New Studio

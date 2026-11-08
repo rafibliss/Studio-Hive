@@ -153,7 +153,7 @@ export default function AddStudioPage() {
         body: JSON.stringify(payload),
       });
       // 401 → session expired/absent: toast + return to /login
-      if (handleAuthFailure(res, "/add-studio", router)) return;
+      if (await handleAuthFailure(res, "/add-studio", router)) return;
       // backend returns JSON: { message, insertedId } on success, { message, error } on failure
       const data = (await res.json().catch(() => null)) as
         | { message?: string; insertedId?: string }

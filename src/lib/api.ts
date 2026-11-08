@@ -1,23 +1,16 @@
 import { toast } from "@/components/ui/toast";
+import { authClient } from "@/lib/auth-client";
 
-/**
- * HTTPOnly cookie-based auth support (Challenge 1).
- *
- * Mutating and user-specific requests send the auth cookie to the backend
- * with `credentials: "include"`. When one of those requests is rejected
- * with `401 Unauthorized` (expired/absent session), this helper surfaces
- * a toast and returns the user to /login — the login page honors the
- * `?redirect=` parameter to bring them back afterwards.
- *
- * Returns `true` when the response was a handled 401; call sites should
- * stop their normal success flow in that case.
- */
-export function handleAuthFailure(
+
+export async function handleAuthFailure(
   res: Response,
   redirectPath: string,
   navigate: { push: (url: string) => void }
-): boolean {
+): Promise<boolean> {
   if (res.status !== 401) return false;
+
+
+  await authClient.signOut().catch(() => undefined);
 
   toast.add({
     title: "Session expired",

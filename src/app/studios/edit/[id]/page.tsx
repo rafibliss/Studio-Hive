@@ -24,7 +24,7 @@ import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
 const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
 
-// Full studio record as stored by POST /add-studio (GET /studios/:id)
+
 type Listing = {
   _id: string;
   title: string | null;
@@ -40,7 +40,7 @@ type Listing = {
   hostEmail: string | null;
 };
 
-// Category values match the labels the backend stores on studio documents
+
 const CATEGORIES = [
   "Photo Studio",
   "Film Stage",
@@ -66,7 +66,7 @@ type FetchState =
   | { status: "not-found" }
   | { status: "ready"; listing: Listing };
 
-/** Select options — keeps a stored unknown category selectable */
+
 function categoryItems(category: string | null) {
   const known = CATEGORIES.map((value) => ({ value, label: value }));
   if (!category || (CATEGORIES as readonly string[]).includes(category)) {
@@ -79,9 +79,7 @@ export default function EditStudioPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  // Route protection via Better Auth — private route. `checking` is true
-  // only while the session resolves on load/reload; a signed-out visitor
-  // is redirected to /login (returning here after authentication).
+
   const { user, checking } = useRequireAuth();
 
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
@@ -100,7 +98,7 @@ export default function EditStudioPage() {
   const [amenities, setAmenities] = React.useState<string[]>([]);
   const [amenityInput, setAmenityInput] = React.useState("");
 
-  // Fetch the existing listing to pre-fill the form
+
   React.useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -159,7 +157,7 @@ export default function EditStudioPage() {
 
   function handleAmenityKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter" || event.key === ",") {
-      event.preventDefault(); // don't submit the form
+      event.preventDefault();
       addAmenity();
     }
   }
@@ -168,7 +166,7 @@ export default function EditStudioPage() {
     setAmenities((prev) => prev.filter((item) => item !== amenity));
   }
 
-  /** PUT /studios/:id — persists the edit, then back to My Listings */
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
@@ -193,7 +191,7 @@ export default function EditStudioPage() {
     fetch(`${STUDIOS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // mutation → send the HTTPOnly auth cookie
+      credentials: "include",
       body: JSON.stringify({
         title: form.title.trim(),
         category: form.category,
@@ -207,7 +205,7 @@ export default function EditStudioPage() {
       }),
     })
       .then(async (res) => {
-        if (handleAuthFailure(res, `/studios/edit/${id}`, router)) return;
+        if (await handleAuthFailure(res, `/studios/edit/${id}`, router)) return;
         if (!res.ok) {
           const data = (await res.json().catch(() => null)) as
             | { message?: string }
@@ -236,20 +234,19 @@ export default function EditStudioPage() {
       .finally(() => setSubmitting(false));
   }
 
-  // Branded loading screen while the session resolves (or the redirect
-  // for signed-out visitors is in flight) — never a flash of content
+
   if (checking || !user) {
     return <AuthLoadingScreen />;
   }
 
-  // Skeleton while the listing data loads
+
   if (state.status === "loading") {
-    // Skeleton mirroring the loaded form so nothing shifts
+
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
         <Skeleton className="mb-6 h-4 w-40" />
         <Skeleton className="mb-8 h-8 w-72" />
-        <Skeleton className="h-[40rem] w-full rounded-xl" />
+        <Skeleton className="h-160 w-full rounded-xl" />
       </main>
     );
   }
@@ -315,7 +312,7 @@ export default function EditStudioPage() {
         onSubmit={handleSubmit}
         className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8"
       >
-        {/* Owner (read-only, from the existing listing document) */}
+
         <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="sr-only">Owner details</legend>
           <div className="flex flex-col gap-1.5">
@@ -346,7 +343,7 @@ export default function EditStudioPage() {
           </div>
         </fieldset>
 
-        {/* Basics */}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <Label htmlFor="title">
@@ -456,7 +453,7 @@ export default function EditStudioPage() {
           </div>
         </div>
 
-        {/* Amenities (tags) */}
+
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="amenities">Amenities</Label>
           <div className="flex gap-2">
@@ -493,7 +490,7 @@ export default function EditStudioPage() {
           )}
         </div>
 
-        {/* Overview */}
+
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="overview">
             Detailed Overview <span className="text-destructive">*</span>
@@ -510,7 +507,7 @@ export default function EditStudioPage() {
           />
         </div>
 
-        {/* Submit */}
+
         <div className="flex justify-end gap-3 border-t border-border pt-6">
           <Button
             type="button"

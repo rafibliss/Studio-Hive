@@ -84,8 +84,8 @@ export default function MyListingsPage() {
         fetch(`${STUDIOS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
             credentials: "include", // user-specific data → send the auth cookie
         })
-            .then((res) => {
-                if (handleAuthFailure(res, "/my-listings", router)) return null;
+            .then(async (res) => {
+                if (await handleAuthFailure(res, "/my-listings", router)) return null;
                 if (!res.ok) throw new Error(`Status ${res.status}`);
                 return res.json() as Promise<Listing[]>;
             })
@@ -112,7 +112,7 @@ export default function MyListingsPage() {
             credentials: "include", // mutation → send the HTTPOnly auth cookie
         })
             .then(async (res) => {
-                if (handleAuthFailure(res, "/my-listings", router)) return;
+                if (await handleAuthFailure(res, "/my-listings", router)) return;
                 if (!res.ok) {
                     const data = (await res.json().catch(() => null)) as
                         | { message?: string }

@@ -224,7 +224,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       }),
     })
       .then(async (res) => {
-        if (handleAuthFailure(res, `/studios/${studio._id}`, router)) return;
+        if (await handleAuthFailure(res, `/studios/${studio._id}`, router)) return;
         if (!res.ok) {
           const data = (await res.json().catch(() => null)) as
             | { message?: string }
