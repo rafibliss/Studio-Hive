@@ -29,6 +29,8 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Skeleton } from "@/components/ui/skeleton";
 import { StudioGrid } from "@/components/studios/studio-card";
 import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
+import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
@@ -62,6 +64,8 @@ function ListingPlaceholder() {
 }
 
 export default function MyListingsPage() {
+    const router = useRouter();
+
     // Route protection via Better Auth — private route. `checking` is true
     // only while the session resolves on load/reload; a signed-out visitor
     // is redirected to /login (returning here after authentication).
@@ -77,13 +81,16 @@ export default function MyListingsPage() {
         if (!user?.email) return;
         let cancelled = false;
 
-        fetch(`${STUDIOS_ENDPOINT}?email=${encodeURIComponent(user.email)}`)
+        fetch(`${STUDIOS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
+            credentials: "include", // user-specific data → send the auth cookie
+        })
             .then((res) => {
+                if (handleAuthFailure(res, "/my-listings", router)) return null;
                 if (!res.ok) throw new Error(`Status ${res.status}`);
                 return res.json() as Promise<Listing[]>;
             })
             .then((data) => {
-                if (cancelled) return;
+                if (cancelled || !data) return;
                 setState({ status: "ready", listings: Array.isArray(data) ? data : [] });
             })
             .catch(() => {
@@ -93,15 +100,19 @@ export default function MyListingsPage() {
         return () => {
             cancelled = true;
         };
-    }, [user?.email]);
+    }, [user?.email, router]);
 
     /** DELETE /studios/:id — removes the document from MongoDB */
     function confirmDelete() {
         if (!listingToDelete) return;
         setBusy(true);
 
-        fetch(`${STUDIOS_ENDPOINT}/${listingToDelete._id}`, { method: "DELETE" })
+        fetch(`${STUDIOS_ENDPOINT}/${listingToDelete._id}`, {
+            method: "DELETE",
+            credentials: "include", // mutation → send the HTTPOnly auth cookie
+        })
             .then(async (res) => {
+                if (handleAuthFailure(res, "/my-listings", router)) return;
                 if (!res.ok) {
                     const data = (await res.json().catch(() => null)) as
                         | { message?: string }

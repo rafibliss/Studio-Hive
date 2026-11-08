@@ -52,6 +52,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { toast } from "@/components/ui/toast";
+import { handleAuthFailure } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 
 import "swiper/css";
@@ -209,6 +210,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
     fetch("http://localhost:8000/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include", // send the HTTPOnly auth cookie
       body: JSON.stringify({
         studioId: studio._id,
         studioTitle: studio.title,
@@ -222,6 +224,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       }),
     })
       .then(async (res) => {
+        if (handleAuthFailure(res, `/studios/${studio._id}`, router)) return;
         if (!res.ok) {
           const data = (await res.json().catch(() => null)) as
             | { message?: string }

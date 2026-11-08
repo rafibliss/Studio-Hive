@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
+import { handleAuthFailure } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
@@ -148,8 +149,11 @@ export default function AddStudioPage() {
       const res = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // send the HTTPOnly auth cookie
         body: JSON.stringify(payload),
       });
+      // 401 → session expired/absent: toast + return to /login
+      if (handleAuthFailure(res, "/add-studio", router)) return;
       // backend returns JSON: { message, insertedId } on success, { message, error } on failure
       const data = (await res.json().catch(() => null)) as
         | { message?: string; insertedId?: string }

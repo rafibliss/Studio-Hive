@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
+import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
@@ -192,6 +193,7 @@ export default function EditStudioPage() {
     fetch(`${STUDIOS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include", // mutation → send the HTTPOnly auth cookie
       body: JSON.stringify({
         title: form.title.trim(),
         category: form.category,
@@ -205,6 +207,7 @@ export default function EditStudioPage() {
       }),
     })
       .then(async (res) => {
+        if (handleAuthFailure(res, `/studios/edit/${id}`, router)) return;
         if (!res.ok) {
           const data = (await res.json().catch(() => null)) as
             | { message?: string }

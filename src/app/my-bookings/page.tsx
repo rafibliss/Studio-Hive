@@ -18,6 +18,8 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { StudioGrid } from "@/components/studios/studio-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
+import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
@@ -62,6 +64,8 @@ function StatusBadge({ status }: { status: string | null }) {
 }
 
 export default function MyBookingsPage() {
+  const router = useRouter();
+
   // Route protection via Better Auth — private route. `checking` is true
   // only while the session resolves on load/reload; a signed-out visitor
   // is redirected to /login (returning here after authentication).
@@ -75,13 +79,16 @@ export default function MyBookingsPage() {
     if (!user?.email) return;
     let cancelled = false;
 
-    fetch(`${BOOKINGS_ENDPOINT}?email=${encodeURIComponent(user.email)}`)
+    fetch(`${BOOKINGS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
+      credentials: "include", // user-specific data → send the auth cookie
+    })
       .then((res) => {
+        if (handleAuthFailure(res, "/my-bookings", router)) return null;
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json() as Promise<Booking[]>;
       })
       .then((data) => {
-        if (cancelled) return;
+        if (cancelled || !data) return;
         setState({
           status: "ready",
           bookings: Array.isArray(data) ? data : [],
@@ -94,14 +101,18 @@ export default function MyBookingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [user?.email]);
+  }, [user?.email, router]);
 
   /** DELETE /bookings/:id — cancels a pending reservation */
   function cancelBooking(booking: Booking) {
     setCancelling(booking._id);
 
-    fetch(`${BOOKINGS_ENDPOINT}/${booking._id}`, { method: "DELETE" })
+    fetch(`${BOOKINGS_ENDPOINT}/${booking._id}`, {
+      method: "DELETE",
+      credentials: "include", // mutation → send the HTTPOnly auth cookie
+    })
       .then(async (res) => {
+        if (handleAuthFailure(res, "/my-bookings", router)) return;
         if (!res.ok) {
           const data = (await res.json().catch(() => null)) as
             | { message?: string }
