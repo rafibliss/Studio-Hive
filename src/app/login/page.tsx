@@ -16,6 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
+import {
+  GoogleAuthButton,
+  SocialDivider,
+} from "@/components/auth/google-button";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
@@ -150,6 +154,10 @@ export default function LoginPage() {
                 "Log in"
               )}
             </Button>
+
+            {/* Social sign-in — triggers the Google OAuth flow via Better Auth */}
+            <SocialDivider />
+            <GoogleAuthButton label="Continue with Google" callbackURL="/" />
           </form>
         </CardContent>
 

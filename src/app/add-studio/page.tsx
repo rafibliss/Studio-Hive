@@ -15,18 +15,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 const API_ENDPOINT = "http://localhost:8000/add-studio";
 
-/**
- * TODO(auth): replace with real better-auth session (`authClient.useSession()`).
- * Hardcoded mock user until auth is implemented.
- */
-const MOCK_USER = {
-  name: "Alex Rivera",
-  email: "alex@studiohive.com",
-};
-
+// Session drives the read-only host fields; nothing to mock anymore.
 const CATEGORIES = [
   { value: "photo-studio", label: "Photo Studio" },
   { value: "film-stage", label: "Film Stage" },
@@ -62,10 +56,25 @@ const INITIAL_FORM: StudioForm = {
 const initialAmenities = ["Wi-Fi", "Ring Light", "Green Room"] as const;
 
 export default function AddStudioPage() {
+  const router = useRouter();
   const [form, setForm] = React.useState<StudioForm>(INITIAL_FORM);
   const [amenities, setAmenities] = React.useState<string[]>([...initialAmenities]);
   const [amenityInput, setAmenityInput] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
+
+  // Live better-auth session — drives the read-only host fields and
+  // route protection for this page
+  const { data: session, isPending: sessionLoading } = authClient.useSession();
+  const user = session?.user ?? null;
+
+  // Route protection: signed-out visitors are sent to /login with a
+  // redirect back here (the login page honors ?redirect= after success)
+  React.useEffect(() => {
+    if (sessionLoading) return;
+    if (!user) {
+      router.replace("/login?redirect=/add-studio");
+    }
+  }, [sessionLoading, user, router]);
 
   function setField<K extends keyof StudioForm>(key: K, value: StudioForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -106,12 +115,24 @@ export default function AddStudioPage() {
       return;
     }
 
+    // Extra safety net: the session must be present to attribute the listing
+    if (!user) {
+      toast.add({
+        title: "Please log in",
+        description: "You need an active session to list a studio.",
+        type: "error",
+      });
+      router.replace("/login?redirect=/add-studio");
+      return;
+    }
+
     const categoryLabel = CATEGORIES.find((c) => c.value === form.category)?.label ?? "";
 
     const payload = {
       // backend contract: see studio-space-server/index.js POST /add-studio
-      hostName: MOCK_USER.name,
-      hostEmail: MOCK_USER.email,
+      // host identity comes straight from the authenticated session
+      hostName: user?.name ?? "",
+      hostEmail: user?.email ?? "",
       title: form.title.trim(),
       category: categoryLabel,
       hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : null,
@@ -175,16 +196,36 @@ export default function AddStudioPage() {
         )}
         noValidate={false}
       >
-        {/* Owner (read-only, mock) */}
+        {/* Owner (read-only, driven by the active session) */}
         <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="sr-only">Owner details</legend>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="owner-name">Your Name</Label>
-            <Input id="owner-name" value={MOCK_USER.name} readOnly disabled />
+            <Input
+              id="owner-name"
+              value={user?.name ?? ""}
+              readOnly
+              disabled
+              aria-describedby="owner-name-hint"
+              placeholder={sessionLoading ? "Loading your details…" : ""}
+            />
+            <p id="owner-name-hint" className="sr-only">
+              Filled automatically from your StudioHive account
+            </p>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="owner-email">Your Email</Label>
-            <Input id="owner-email" value={MOCK_USER.email} readOnly disabled />
+            <Input
+              id="owner-email"
+              value={user?.email ?? ""}
+              readOnly
+              disabled
+              aria-describedby="owner-email-hint"
+              placeholder={sessionLoading ? "Loading your details…" : ""}
+            />
+            <p id="owner-email-hint" className="sr-only">
+              Filled automatically from your StudioHive account
+            </p>
           </div>
         </fieldset>
 

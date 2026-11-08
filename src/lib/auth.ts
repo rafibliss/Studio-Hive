@@ -12,4 +12,18 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
     },
+    // Google OAuth sign-in — the shared `authClient.signIn.social({ provider: "google" })`
+    // button only works once GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET are in .env
+    // (better-auth serves the /api/auth/sign-in/social route automatically).
+    // Spread-guarded so the app still boots cleanly without the keys.
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+        ? {
+              socialProviders: {
+                  google: {
+                      clientId: process.env.GOOGLE_CLIENT_ID,
+                      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                  },
+              },
+          }
+        : {}),
 });

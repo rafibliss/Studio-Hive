@@ -21,6 +21,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
+import {
+  GoogleAuthButton,
+  SocialDivider,
+} from "@/components/auth/google-button";
 import { authClient } from "@/lib/auth-client";
 
 
@@ -244,6 +248,10 @@ export default function RegisterPage() {
                 "Register"
               )}
             </Button>
+
+            {/* Social sign-up — same Google OAuth flow as login */}
+            <SocialDivider />
+            <GoogleAuthButton label="Sign up with Google" callbackURL="/" />
           </form>
         </CardContent>
 

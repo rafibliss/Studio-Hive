@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, Keyboard, Navigation, Pagination } from "swiper/modules";
 import {
@@ -15,6 +15,7 @@ import {
   MailIcon,
   ImageIcon,
   StarCheckIcon,
+  Loader2Icon,
   WifiIcon,
   Volume2Icon,
   CameraIcon,
@@ -52,6 +53,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { toast } from "@/components/ui/toast";
+import { authClient } from "@/lib/auth-client";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -149,10 +151,17 @@ function StudioGallery({ imageUrl, title }: { imageUrl: string | null; title: st
 
 /** Booking modal opened by the main CTA */
 function BookingDialog({ studio }: { studio: StudioDetail }) {
+  const router = useRouter();
+
+  // Booking requires an identity — the session provides the booker's info
+  const { data: session } = authClient.useSession();
+  const user = session?.user ?? null;
+
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState("");
   const [start, setStart] = React.useState("");
   const [end, setEnd] = React.useState("");
+  const [booked, setBooked] = React.useState(false);
 
   // Hourly estimate — only when the range is valid (end after start)
   const hours =
@@ -185,13 +194,66 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       return;
     }
 
-    // TODO(bookings): POST the reservation to the booking backend
-    toast.add({
-      title: "Request sent to the host",
-      description: `${studio.title ?? "This studio"} on ${date} · ${start}–${end}. You'll get a confirmation shortly.`,
-      type: "success",
-    });
-    setOpen(false);
+    // Route guard — booking requires an active session
+    if (!user) {
+      toast.add({
+        title: "Please log in",
+        description: "You need an account to reserve a studio.",
+        type: "error",
+      });
+      setOpen(false);
+      router.push(`/login?redirect=/studios/${studio._id}`);
+      return;
+    }
+
+    setBooked(true);
+    fetch("http://localhost:8000/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studioId: studio._id,
+        studioTitle: studio.title,
+        studioImage: studio.imageUrl,
+        location: studio.location,
+        hourlyRate: studio.hourlyRate,
+        userName: user.name,
+        userEmail: user.email,
+        bookingDate: date,
+        timeSlot: `${start} – ${end}`,
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const data = (await res.json().catch(() => null)) as
+            | { message?: string }
+            | null;
+          toast.add({
+            title: "Booking failed",
+            description: data?.message ?? "The reservation could not be saved.",
+            type: "error",
+          });
+          return;
+        }
+        toast.add({
+          title: "Booking confirmed!",
+          description: `${studio.title ?? "This studio"} · ${date} · ${start} – ${end}. Track it under My Bookings.`,
+          type: "success",
+        });
+        // Reset the form and close the modal
+        setDate("");
+        setStart("");
+        setEnd("");
+        setOpen(false);
+      })
+      .catch(() => {
+        toast.add({
+          title: "Something went wrong",
+          description:
+            "Couldn't reach the booking service. Please try again in a moment.",
+          type: "error",
+        });
+      })
+      .finally(() => setBooked(false));
   }
 
   return (
@@ -267,12 +329,20 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              disabled={booked}
               className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button type="submit" className="w-full sm:w-auto">
-              Confirm Booking
+            <Button type="submit" disabled={booked} className="w-full sm:w-auto">
+              {booked ? (
+                <>
+                  <Loader2Icon className="animate-spin" aria-hidden="true" />
+                  Reserving…
+                </>
+              ) : (
+                "Confirm Booking"
+              )}
             </Button>
           </DialogFooter>
         </form>
