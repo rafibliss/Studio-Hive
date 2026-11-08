@@ -47,7 +47,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -154,7 +153,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
   const router = useRouter();
 
   // Booking requires an identity — the session provides the booker's info
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const user = session?.user ?? null;
 
   const [open, setOpen] = React.useState(false);
@@ -258,13 +257,27 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button size="lg" className="h-11 w-full text-base" />
-        }
+      {/* Controlled trigger: the modal only opens for a signed-in user —
+          signed-out visitors are redirected to /login instead */}
+      <Button
+        size="lg"
+        className="h-11 w-full text-base"
+        disabled={sessionPending}
+        onClick={() => {
+          if (!user) {
+            toast.add({
+              title: "Please log in",
+              description: "You need an account to reserve a studio.",
+              type: "error",
+            });
+            router.push(`/login?redirect=/studios/${studio._id}`);
+            return;
+          }
+          setOpen(true);
+        }}
       >
         Book Workspace Now
-      </DialogTrigger>
+      </Button>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Reserve {studio.title}</DialogTitle>

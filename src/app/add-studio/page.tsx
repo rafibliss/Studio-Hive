@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
 const API_ENDPOINT = "http://localhost:8000/add-studio";
 
@@ -62,19 +63,16 @@ export default function AddStudioPage() {
   const [amenityInput, setAmenityInput] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
-  // Live better-auth session — drives the read-only host fields and
-  // route protection for this page
-  const { data: session, isPending: sessionLoading } = authClient.useSession();
-  const user = session?.user ?? null;
+  // Route protection via Better Auth — private route. `checking` is true
+  // only while the session resolves on load/reload; a signed-out visitor
+  // is redirected to /login (returning here after authentication).
+  const { user, checking } = useRequireAuth();
 
-  // Route protection: signed-out visitors are sent to /login with a
-  // redirect back here (the login page honors ?redirect= after success)
-  React.useEffect(() => {
-    if (sessionLoading) return;
-    if (!user) {
-      router.replace("/login?redirect=/add-studio");
-    }
-  }, [sessionLoading, user, router]);
+  // Branded loading screen while the session resolves instead of
+  // rendering the form mid-flight
+  if (checking || !user) {
+    return <AuthLoadingScreen />;
+  }
 
   function setField<K extends keyof StudioForm>(key: K, value: StudioForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -131,8 +129,8 @@ export default function AddStudioPage() {
     const payload = {
       // backend contract: see studio-space-server/index.js POST /add-studio
       // host identity comes straight from the authenticated session
-      hostName: user?.name ?? "",
-      hostEmail: user?.email ?? "",
+      hostName: user.name,
+      hostEmail: user.email,
       title: form.title.trim(),
       category: categoryLabel,
       hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : null,
@@ -203,11 +201,10 @@ export default function AddStudioPage() {
             <Label htmlFor="owner-name">Your Name</Label>
             <Input
               id="owner-name"
-              value={user?.name ?? ""}
+              value={user.name}
               readOnly
               disabled
               aria-describedby="owner-name-hint"
-              placeholder={sessionLoading ? "Loading your details…" : ""}
             />
             <p id="owner-name-hint" className="sr-only">
               Filled automatically from your StudioHive account
@@ -217,11 +214,10 @@ export default function AddStudioPage() {
             <Label htmlFor="owner-email">Your Email</Label>
             <Input
               id="owner-email"
-              value={user?.email ?? ""}
+              value={user.email}
               readOnly
               disabled
               aria-describedby="owner-email-hint"
-              placeholder={sessionLoading ? "Loading your details…" : ""}
             />
             <p id="owner-email-hint" className="sr-only">
               Filled automatically from your StudioHive account

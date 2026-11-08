@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Building2Icon,
   CalendarIcon,
@@ -19,7 +18,8 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { StudioGrid } from "@/components/studios/studio-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
-import { authClient } from "@/lib/auth-client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
 const BOOKINGS_ENDPOINT = "http://localhost:8000/bookings";
 
@@ -62,23 +62,13 @@ function StatusBadge({ status }: { status: string | null }) {
 }
 
 export default function MyBookingsPage() {
-  const router = useRouter();
-
-  // Live better-auth session — this is a private route
-  const { data: session, isPending: sessionLoading } = authClient.useSession();
-  const user = session?.user ?? null;
+  // Route protection via Better Auth — private route. `checking` is true
+  // only while the session resolves on load/reload; a signed-out visitor
+  // is redirected to /login (returning here after authentication).
+  const { user, checking } = useRequireAuth();
 
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
   const [cancelling, setCancelling] = React.useState<string | null>(null);
-
-  // Route protection: signed-out visitors are sent to /login with a
-  // redirect back here; wait for the session to resolve first
-  React.useEffect(() => {
-    if (sessionLoading) return;
-    if (!user) {
-      router.replace("/login?redirect=/my-bookings");
-    }
-  }, [sessionLoading, user, router]);
 
   // Fetch the signed-in user's bookings
   React.useEffect(() => {
@@ -148,8 +138,14 @@ export default function MyBookingsPage() {
       .finally(() => setCancelling(null));
   }
 
-  // Skeleton while the session resolves (or redirect is in flight)
-  if (sessionLoading || !user || state.status === "loading") {
+  // Branded loading screen while the session resolves (or the redirect
+  // for signed-out visitors is in flight) — never a flash of content
+  if (checking || !user) {
+    return <AuthLoadingScreen />;
+  }
+
+  // Skeleton while the page's own data loads
+  if (state.status === "loading") {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <Skeleton className="mb-2 h-8 w-56" />

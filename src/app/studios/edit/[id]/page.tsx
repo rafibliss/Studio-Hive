@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
-import { authClient } from "@/lib/auth-client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 
 const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
 
@@ -77,9 +78,10 @@ export default function EditStudioPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  // Private route — the session guards the page itself
-  const { data: session, isPending: sessionLoading } = authClient.useSession();
-  const user = session?.user ?? null;
+  // Route protection via Better Auth — private route. `checking` is true
+  // only while the session resolves on load/reload; a signed-out visitor
+  // is redirected to /login (returning here after authentication).
+  const { user, checking } = useRequireAuth();
 
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
   const [submitting, setSubmitting] = React.useState(false);
@@ -96,15 +98,6 @@ export default function EditStudioPage() {
   });
   const [amenities, setAmenities] = React.useState<string[]>([]);
   const [amenityInput, setAmenityInput] = React.useState("");
-
-  // Route protection: signed-out visitors are sent to /login and
-  // return here after successfully signing in
-  React.useEffect(() => {
-    if (sessionLoading) return;
-    if (!user && id) {
-      router.replace(`/login?redirect=/studios/edit/${id}`);
-    }
-  }, [sessionLoading, user, router, id]);
 
   // Fetch the existing listing to pre-fill the form
   React.useEffect(() => {
@@ -240,7 +233,14 @@ export default function EditStudioPage() {
       .finally(() => setSubmitting(false));
   }
 
-  if (sessionLoading || state.status === "loading") {
+  // Branded loading screen while the session resolves (or the redirect
+  // for signed-out visitors is in flight) — never a flash of content
+  if (checking || !user) {
+    return <AuthLoadingScreen />;
+  }
+
+  // Skeleton while the listing data loads
+  if (state.status === "loading") {
     // Skeleton mirroring the loaded form so nothing shifts
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
