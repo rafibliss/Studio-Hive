@@ -43,7 +43,7 @@ type FetchState =
   | { status: "error" }
   | { status: "ready"; bookings: Booking[] };
 
-// Distinct badge styling per booking status
+
 const STATUS_STYLES: Record<string, string> = {
   Pending: "border-amber-500/40 bg-amber-500/15 text-amber-700",
   Confirmed: "border-primary/40 bg-primary/10 text-primary",
@@ -66,21 +66,18 @@ function StatusBadge({ status }: { status: string | null }) {
 export default function MyBookingsPage() {
   const router = useRouter();
 
-  // Route protection via Better Auth — private route. `checking` is true
-  // only while the session resolves on load/reload; a signed-out visitor
-  // is redirected to /login (returning here after authentication).
   const { user, checking } = useRequireAuth();
 
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
   const [cancelling, setCancelling] = React.useState<string | null>(null);
 
-  // Fetch the signed-in user's bookings
+
   React.useEffect(() => {
     if (!user?.email) return;
     let cancelled = false;
 
     fetch(`${BOOKINGS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
-      credentials: "include", // user-specific data → send the auth cookie
+      credentials: "include",
     })
       .then(async (res) => {
         if (await handleAuthFailure(res, "/my-bookings", router)) return null;
@@ -103,13 +100,15 @@ export default function MyBookingsPage() {
     };
   }, [user?.email, router]);
 
-  /** DELETE /bookings/:id — cancels a pending reservation */
+
   function cancelBooking(booking: Booking) {
     setCancelling(booking._id);
 
     fetch(`${BOOKINGS_ENDPOINT}/${booking._id}`, {
-      method: "DELETE",
-      credentials: "include", // mutation → send the HTTPOnly auth cookie
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Cancelled" }),
+      credentials: "include",
     })
       .then(async (res) => {
         if (await handleAuthFailure(res, "/my-bookings", router)) return;
@@ -124,18 +123,22 @@ export default function MyBookingsPage() {
           });
           return;
         }
-        // Update the local UI state — drop the cancelled booking
+
+
         setState((prev) =>
           prev.status === "ready"
             ? {
               status: "ready",
-              bookings: prev.bookings.filter((item) => item._id !== booking._id),
+              bookings: prev.bookings.map((item) =>
+                item._id === booking._id ? { ...item, status: "Cancelled" } : item
+              ),
             }
             : prev
         );
+
         toast.add({
           title: "Booking cancelled",
-          description: `Your ${booking.bookingDate} slot at "${booking.studioTitle ?? "the studio"}" was released.`,
+          description: `Your ${booking.bookingDate} slot at "${booking.studioTitle ?? "the studio"}" has been cancelled.`,
           type: "success",
         });
       })
@@ -149,13 +152,10 @@ export default function MyBookingsPage() {
       .finally(() => setCancelling(null));
   }
 
-  // Branded loading screen while the session resolves (or the redirect
-  // for signed-out visitors is in flight) — never a flash of content
   if (checking || !user) {
     return <AuthLoadingScreen />;
   }
 
-  // Skeleton while the page's own data loads
   if (state.status === "loading") {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -197,7 +197,6 @@ export default function MyBookingsPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      {/* Page header */}
       <header className="mb-10 flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">My Bookings</h1>
         <p className="max-w-xl text-muted-foreground">
@@ -227,7 +226,6 @@ export default function MyBookingsPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {bookings.map((booking) => (
             <Card key={booking._id} className="overflow-hidden pt-0 pb-4">
-              {/* Studio image with status badge overlay */}
               <div className="relative h-40 w-full">
                 {booking.studioImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -273,7 +271,6 @@ export default function MyBookingsPage() {
                 </p>
               </CardContent>
 
-              {/* Cancel only applies to still-pending reservations */}
               {booking.status === "Pending" && (
                 <CardFooter className="px-4">
                   <Button

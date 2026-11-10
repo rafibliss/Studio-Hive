@@ -61,7 +61,6 @@ import "swiper/css/navigation";
 
 const STUDIOS_API = "http://localhost:8000/studios";
 
-// Full studio record as stored by POST /add-studio (GET /studios/:id)
 type StudioDetail = {
   _id: string;
   title: string | null;
@@ -71,7 +70,6 @@ type StudioDetail = {
   maxCapacity: number | null;
   location: string | null;
   imageUrl: string | null;
-  /** Gallery from the backend (`withImages`); absent on very old records */
   images?: string[] | null;
   amenities: string[] | null;
   overview: string | null;
@@ -86,13 +84,11 @@ type FetchState =
   | { status: "not-found" }
   | { status: "ready"; studio: StudioDetail };
 
-// TODO: read rating/review data from the studio document once the
-// backend tracks reviews — same hardcoded source as the studio cards
+
 const RATINGS = [4.9, 4.7, 4.8, 4.6, 5, 4.8] as const;
 const RATING_COUNTS = [132, 64, 87, 41, 156, 73] as const;
 
-// Known amenities → icon. Unmapped amenities still render with a
-// generic plug icon so new entries never break the layout.
+
 const AMENITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   "Wi-Fi": WifiIcon,
   "Soundproofing": Volume2Icon,
@@ -114,19 +110,17 @@ function AmenityIcon({ amenity }: { amenity: string }) {
   return <Icon className="size-3.5" />;
 }
 
-/** Legacy-safe gallery: prefer the `images` array; fall back to the single `imageUrl` */
 function resolveGallery(studio: StudioDetail): string[] {
   const fromArray = Array.isArray(studio.images)
     ? studio.images.filter(
-        (url): url is string => typeof url === "string" && url.trim() !== ""
-      )
+      (url): url is string => typeof url === "string" && url.trim() !== ""
+    )
     : [];
   if (fromArray.length > 0) return fromArray;
   const legacy = studio.imageUrl?.trim();
   return legacy ? [legacy] : [];
 }
 
-/** Gallery carousel — reuses the Swiper setup from the home banner */
 function StudioGallery({ images, title }: { images: string[]; title: string | null }) {
   return (
     <Swiper
@@ -136,7 +130,7 @@ function StudioGallery({ images, title }: { images: string[]; title: string | nu
       navigation={images.length > 1}
       keyboard={{ enabled: true }}
       aria-label="Studio gallery"
-      className="detail-gallery h-72 w-full overflow-hidden rounded-xl border border-border bg-secondary/40 sm:h-96 lg:h-[26rem]"
+      className="detail-gallery h-72 w-full overflow-hidden rounded-xl border border-border bg-secondary/40 sm:h-96 lg:h-104"
     >
       {images.length > 0 ? (
         images.map((src, index) => (
@@ -161,11 +155,9 @@ function StudioGallery({ images, title }: { images: string[]; title: string | nu
   );
 }
 
-/** Booking modal opened by the main CTA */
 function BookingDialog({ studio }: { studio: StudioDetail }) {
   const router = useRouter();
 
-  // Booking requires an identity — the session provides the booker's info
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const user = session?.user ?? null;
 
@@ -175,15 +167,14 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
   const [end, setEnd] = React.useState("");
   const [booked, setBooked] = React.useState(false);
 
-  // Hourly estimate — only when the range is valid (end after start)
   const hours =
     start && end && end > start
       ? Math.round(
-          ((Date.parse(`2000-01-01T${end}`) - Date.parse(`2000-01-01T${start}`)) /
-            3600000 +
-            Number.EPSILON) *
-            100
-        ) / 100
+        ((Date.parse(`2000-01-01T${end}`) - Date.parse(`2000-01-01T${start}`)) /
+          3600000 +
+          Number.EPSILON) *
+        100
+      ) / 100
       : null;
   const total = studio.hourlyRate != null && hours != null ? studio.hourlyRate * hours : null;
 
@@ -206,7 +197,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       return;
     }
 
-    // Route guard — booking requires an active session
+
     if (!user) {
       toast.add({
         title: "Please log in",
@@ -222,7 +213,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
     fetch("http://localhost:8000/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // send the HTTPOnly auth cookie
+      credentials: "include",
       body: JSON.stringify({
         studioId: studio._id,
         studioTitle: studio.title,
@@ -253,7 +244,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
           description: `${studio.title ?? "This studio"} · ${date} · ${start} – ${end}. Track it under My Bookings.`,
           type: "success",
         });
-        // Reset the form and close the modal
+
         setDate("");
         setStart("");
         setEnd("");
@@ -272,8 +263,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* Controlled trigger: the modal only opens for a signed-in user —
-          signed-out visitors are redirected to /login instead */}
+
       <Button
         size="lg"
         className="h-11 w-full text-base"
@@ -335,7 +325,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
             </div>
           </div>
 
-          {/* Price estimate */}
+
           <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">
@@ -379,14 +369,14 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
   );
 }
 
-/** Skeleton mirrored to the loaded layout so nothing shifts */
+
 function StudioDetailSkeleton() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <Skeleton className="mb-6 h-4 w-40" />
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="flex flex-col gap-8">
-          <Skeleton className="h-72 w-full rounded-xl sm:h-96 lg:h-[26rem]" />
+          <Skeleton className="h-72 w-full rounded-xl sm:h-96 lg:h-104" />
           <div className="flex flex-col gap-3">
             <Skeleton className="h-8 w-2/3" />
             <Skeleton className="h-4 w-1/2" />
@@ -506,7 +496,6 @@ export default function StudioDetailsPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      {/* Breadcrumb-style back link */}
       <Link
         href="/studios"
         className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -516,11 +505,9 @@ export default function StudioDetailsPage() {
       </Link>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-        {/* Left column: gallery + specs */}
         <div className="flex min-w-0 flex-col gap-10">
           <StudioGallery images={resolveGallery(studio)} title={studio.title} />
 
-          {/* Workspace specifications */}
           <section aria-label="Workspace specifications" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{studio.category ?? "Studio"}</Badge>
@@ -538,7 +525,6 @@ export default function StudioDetailsPage() {
               <MapPinIcon className="size-4 shrink-0" />
               <span>{studio.location ?? "Location TBA"}</span>
             </p>
-            {/* rating — hardcoded like the cards until reviews exist */}
             <p className="flex items-center gap-1 text-sm">
               <StarIcon className="size-4 fill-amber-400 text-amber-400" />
               <span className="font-semibold">{RATINGS[studio._id.length % RATINGS.length].toFixed(1)}</span>
@@ -585,12 +571,11 @@ export default function StudioDetailsPage() {
             )}
           </section>
 
-          {/* Host details */}
           <section aria-label="Host details" className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold tracking-tight">Your Host</h2>
             <Card className="flex-row items-center gap-4 p-4">
               <Avatar size="lg">
-                {/* Profile photos aren't collected per listing yet — initials for now */}
+
                 <AvatarFallback className="bg-primary/10 text-primary">
                   {hostInitials}
                 </AvatarFallback>
@@ -664,14 +649,12 @@ export default function StudioDetailsPage() {
         </aside>
       </div>
 
-      {/* Reviews */}
+
       <section aria-label="Reviews" className="mt-12 flex flex-col gap-4">
         <h2 className="text-xl font-semibold tracking-tight">
           Reviews ({RATING_COUNTS[studio._id.length % RATING_COUNTS.length]})
         </h2>
-        {/* Reviews aren't stored per studio yet — show the averaged rating
-            and an empty state; individual reviews are coming with the
-            bookings backend */}
+
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
