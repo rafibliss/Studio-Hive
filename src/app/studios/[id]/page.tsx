@@ -71,6 +71,8 @@ type StudioDetail = {
   maxCapacity: number | null;
   location: string | null;
   imageUrl: string | null;
+  /** Gallery from the backend (`withImages`); absent on very old records */
+  images?: string[] | null;
   amenities: string[] | null;
   overview: string | null;
   hostName: string | null;
@@ -112,10 +114,20 @@ function AmenityIcon({ amenity }: { amenity: string }) {
   return <Icon className="size-3.5" />;
 }
 
-/** Gallery carousel — reuses the Swiper setup from the home banner */
-function StudioGallery({ imageUrl, title }: { imageUrl: string | null; title: string | null }) {
-  const images = imageUrl ? [imageUrl] : [];
+/** Legacy-safe gallery: prefer the `images` array; fall back to the single `imageUrl` */
+function resolveGallery(studio: StudioDetail): string[] {
+  const fromArray = Array.isArray(studio.images)
+    ? studio.images.filter(
+        (url): url is string => typeof url === "string" && url.trim() !== ""
+      )
+    : [];
+  if (fromArray.length > 0) return fromArray;
+  const legacy = studio.imageUrl?.trim();
+  return legacy ? [legacy] : [];
+}
 
+/** Gallery carousel — reuses the Swiper setup from the home banner */
+function StudioGallery({ images, title }: { images: string[]; title: string | null }) {
   return (
     <Swiper
       modules={[A11y, Keyboard, Navigation, Pagination]}
@@ -127,12 +139,12 @@ function StudioGallery({ imageUrl, title }: { imageUrl: string | null; title: st
       className="detail-gallery h-72 w-full overflow-hidden rounded-xl border border-border bg-secondary/40 sm:h-96 lg:h-[26rem]"
     >
       {images.length > 0 ? (
-        images.map((src) => (
-          <SwiperSlide key={src} className="relative">
+        images.map((src, index) => (
+          <SwiperSlide key={`${index}-${src}`} className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
-              alt={title ?? "Studio photo"}
+              alt={`${title ?? "Studio"} photo ${index + 1} of ${images.length}`}
               className="absolute inset-0 size-full object-cover"
             />
           </SwiperSlide>
@@ -214,7 +226,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       body: JSON.stringify({
         studioId: studio._id,
         studioTitle: studio.title,
-        studioImage: studio.imageUrl,
+        studioImage: studio.imageUrl ?? resolveGallery(studio)[0] ?? null,
         location: studio.location,
         hourlyRate: studio.hourlyRate,
         userName: user.name,
@@ -506,7 +518,7 @@ export default function StudioDetailsPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* Left column: gallery + specs */}
         <div className="flex min-w-0 flex-col gap-10">
-          <StudioGallery imageUrl={studio.imageUrl} title={studio.title} />
+          <StudioGallery images={resolveGallery(studio)} title={studio.title} />
 
           {/* Workspace specifications */}
           <section aria-label="Workspace specifications" className="flex flex-col gap-3">

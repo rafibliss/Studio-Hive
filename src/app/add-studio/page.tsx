@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { handleAuthFailure } from "@/lib/api";
+import {
+  cleanGalleryImages,
+  GalleryImageInput,
+} from "@/components/studios/gallery-image-input";
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
@@ -40,7 +44,8 @@ type StudioForm = {
   securityDeposit: string;
   maxCapacity: string;
   location: string;
-  imageUrl: string;
+  /** Gallery image URLs — first entry is the cover */
+  images: string[];
   overview: string;
 };
 
@@ -51,7 +56,7 @@ const INITIAL_FORM: StudioForm = {
   securityDeposit: "",
   maxCapacity: "",
   location: "",
-  imageUrl: "",
+  images: [""],
   overview: "",
 };
 
@@ -126,6 +131,7 @@ export default function AddStudioPage() {
     }
 
     const categoryLabel = CATEGORIES.find((c) => c.value === form.category)?.label ?? "";
+    const gallery = cleanGalleryImages(form.images);
 
     const payload = {
       // backend contract: see studio-space-server/index.js POST /add-studio
@@ -138,7 +144,9 @@ export default function AddStudioPage() {
       securityDeposit: form.securityDeposit ? Number(form.securityDeposit) : null,
       maxCapacity: form.maxCapacity ? Number(form.maxCapacity) : null,
       location: form.location.trim(),
-      imageUrl: form.imageUrl.trim(),
+      // gallery: multi-image array; imageUrl stays as the cover for card previews
+      images: gallery,
+      imageUrl: gallery[0] ?? "",
       amenities,
       overview: form.overview.trim(),
       createdAt: new Date().toISOString(),
@@ -326,17 +334,13 @@ export default function AddStudioPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <Label htmlFor="image-url">Image URL</Label>
-            <Input
-              id="image-url"
-              name="imageUrl"
-              type="url"
-              placeholder="https://example.com/studio-photo.jpg"
-              value={form.imageUrl}
-              onChange={(e) => setField("imageUrl", e.target.value)}
-            />
-          </div>
+          {/* Gallery images — dynamic rows, first URL is the cover */}
+          <GalleryImageInput
+            value={form.images}
+            onChange={(images) =>
+              setForm((prev) => ({ ...prev, images }))
+            }
+          />
         </div>
 
         {/* Amenities (tags) */}

@@ -16,7 +16,7 @@ const CATEGORIES = [
     icon: CameraIcon,
   },
   {
-    label: "Sound Stages",
+    label: "Film Stages",
     value: "Film Stage",
     description: "Film-grade stages with blackout and grip support.",
     icon: ClapperboardIcon,

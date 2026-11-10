@@ -18,6 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
+import {
+  cleanGalleryImages,
+  GalleryImageInput,
+} from "@/components/studios/gallery-image-input";
 import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
@@ -34,6 +38,8 @@ type Listing = {
   maxCapacity: number | null;
   location: string | null;
   imageUrl: string | null;
+  /** Gallery from the backend (`withImages`); absent on very old records */
+  images?: string[] | null;
   amenities: string[] | null;
   overview: string | null;
   hostName: string | null;
@@ -56,9 +62,22 @@ type EditForm = {
   securityDeposit: string;
   maxCapacity: string;
   location: string;
-  imageUrl: string;
+  /** Gallery image URLs — first entry is the cover */
+  images: string[];
   overview: string;
 };
+
+/** Legacy-safe gallery for pre-filling the form: prefer `images`, fall back to the single `imageUrl` */
+function listingGallery(listing: Listing): string[] {
+  const fromArray = Array.isArray(listing.images)
+    ? listing.images.filter(
+        (url): url is string => typeof url === "string" && url.trim() !== ""
+      )
+    : [];
+  if (fromArray.length > 0) return fromArray;
+  const legacy = listing.imageUrl?.trim();
+  return legacy ? [legacy] : [""];
+}
 
 type FetchState =
   | { status: "loading" }
@@ -92,7 +111,7 @@ export default function EditStudioPage() {
     securityDeposit: "",
     maxCapacity: "",
     location: "",
-    imageUrl: "",
+    images: [""],
     overview: "",
   });
   const [amenities, setAmenities] = React.useState<string[]>([]);
@@ -125,7 +144,7 @@ export default function EditStudioPage() {
           maxCapacity:
             listing.maxCapacity != null ? String(listing.maxCapacity) : "",
           location: listing.location ?? "",
-          imageUrl: listing.imageUrl ?? "",
+          images: listingGallery(listing),
           overview: listing.overview ?? "",
         });
         setAmenities(listing.amenities ?? []);
@@ -188,6 +207,8 @@ export default function EditStudioPage() {
     }
 
     setSubmitting(true);
+    const gallery = cleanGalleryImages(form.images);
+
     fetch(`${STUDIOS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -199,7 +220,9 @@ export default function EditStudioPage() {
         securityDeposit: form.securityDeposit ? Number(form.securityDeposit) : null,
         maxCapacity: form.maxCapacity ? Number(form.maxCapacity) : null,
         location: form.location.trim(),
-        imageUrl: form.imageUrl.trim(),
+        // gallery: multi-image array; imageUrl mirrors the cover for legacy consumers
+        images: gallery,
+        imageUrl: gallery[0] ?? "",
         amenities,
         overview: form.overview.trim(),
       }),
@@ -440,17 +463,13 @@ export default function EditStudioPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <Label htmlFor="image-url">Image URL</Label>
-            <Input
-              id="image-url"
-              name="imageUrl"
-              type="url"
-              placeholder="https://example.com/studio-photo.jpg"
-              value={form.imageUrl}
-              onChange={(e) => setField("imageUrl", e.target.value)}
-            />
-          </div>
+          {/* Gallery images — dynamic rows, first URL is the cover */}
+          <GalleryImageInput
+            value={form.images}
+            onChange={(images) =>
+              setForm((prev) => ({ ...prev, images }))
+            }
+          />
         </div>
 
 
