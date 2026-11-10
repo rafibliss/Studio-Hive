@@ -251,7 +251,7 @@ export default function RegisterPage() {
 
             {/* Social sign-up — same Google OAuth flow as login */}
             <SocialDivider />
-            <GoogleAuthButton label="Sign up with Google" callbackURL="/" />
+            <GoogleAuthButton label="Sign up with Google" />
           </form>
         </CardContent>
 

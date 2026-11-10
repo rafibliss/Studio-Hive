@@ -9,6 +9,11 @@ export const auth = betterAuth({
     database: mongodbAdapter(db, {
         client,
     }),
+    // This instance is a leftover fallback (the authClient now talks to the
+    // backend on :8000). If anything still posts to /api/auth/* here, origin
+    // checks would otherwise fail because better-auth infers baseURL from
+    // BETTER_AUTH_URL (:8000) while requests come from :3000.
+    trustedOrigins: ['http://localhost:3000'],
     emailAndPassword: {
         enabled: true,
     },

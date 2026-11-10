@@ -38,7 +38,11 @@ function GoogleGIcon({ className }: { className?: string }) {
  */
 export function GoogleAuthButton({
   label = "Continue with Google",
-  callbackURL = "/",
+  // Default is an ABSOLUTE frontend URL on purpose: Better Auth resolves
+  // relative paths against the BACKEND origin (localhost:8000), so a plain
+  // "/" would land the user on the backend's root JSON response after
+  // Google consent instead of returning to the frontend.
+  callbackURL = "http://localhost:3000/",
 }: {
   label?: string;
   callbackURL?: string;

@@ -157,7 +157,7 @@ export default function LoginPage() {
 
             {/* Social sign-in — triggers the Google OAuth flow via Better Auth */}
             <SocialDivider />
-            <GoogleAuthButton label="Continue with Google" callbackURL="/" />
+            <GoogleAuthButton label="Continue with Google" />
           </form>
         </CardContent>
 
