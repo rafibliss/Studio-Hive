@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,28 +20,22 @@ import {
   SocialDivider,
 } from "@/components/auth/google-button";
 import { authClient } from "@/lib/auth-client";
-
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-
     setSubmitting(true);
     setError(null);
-
     try {
-
       const { error: signInError } = await authClient.signIn.email({
         email: email.trim(),
         password,
       });
-
       if (signInError) {
         const message =
           signInError.message ||
@@ -55,8 +48,6 @@ export default function LoginPage() {
         });
         return;
       }
-
-
       const redirect =
         new URLSearchParams(window.location.search).get("redirect") || "/";
       router.push(redirect);
@@ -74,7 +65,6 @@ export default function LoginPage() {
       setSubmitting(false);
     }
   }
-
   return (
     <main className="flex items-center justify-center px-4 py-12 sm:py-16">
       <Card className="w-full max-w-md shadow-md">
@@ -86,10 +76,8 @@ export default function LoginPage() {
             Log in to book studios, manage listings and track your sessions.
           </CardDescription>
         </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
             {error && (
               <div
                 role="alert"
@@ -99,7 +87,6 @@ export default function LoginPage() {
                 <span>{error}</span>
               </div>
             )}
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -115,7 +102,6 @@ export default function LoginPage() {
                 aria-invalid={error ? true : undefined}
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
@@ -139,7 +125,6 @@ export default function LoginPage() {
                 aria-invalid={error ? true : undefined}
               />
             </div>
-
             <Button
               type="submit"
               disabled={submitting}
@@ -154,13 +139,10 @@ export default function LoginPage() {
                 "Log in"
               )}
             </Button>
-
-            {/* Social sign-in — triggers the Google OAuth flow via Better Auth */}
             <SocialDivider />
             <GoogleAuthButton label="Continue with Google" />
           </form>
         </CardContent>
-
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}

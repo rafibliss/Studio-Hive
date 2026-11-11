@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -25,10 +24,7 @@ import {
 import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
-
 const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
-
-
 type Listing = {
   _id: string;
   title: string | null;
@@ -38,15 +34,12 @@ type Listing = {
   maxCapacity: number | null;
   location: string | null;
   imageUrl: string | null;
-  /** Gallery from the backend (`withImages`); absent on very old records */
   images?: string[] | null;
   amenities: string[] | null;
   overview: string | null;
   hostName: string | null;
   hostEmail: string | null;
 };
-
-
 const CATEGORIES = [
   "Photo Studio",
   "Film Stage",
@@ -54,7 +47,6 @@ const CATEGORIES = [
   "Music Suite",
   "Workshop",
 ] as const;
-
 type EditForm = {
   title: string;
   category: string;
@@ -62,12 +54,9 @@ type EditForm = {
   securityDeposit: string;
   maxCapacity: string;
   location: string;
-  /** Gallery image URLs — first entry is the cover */
   images: string[];
   overview: string;
 };
-
-/** Legacy-safe gallery for pre-filling the form: prefer `images`, fall back to the single `imageUrl` */
 function listingGallery(listing: Listing): string[] {
   const fromArray = Array.isArray(listing.images)
     ? listing.images.filter(
@@ -78,14 +67,11 @@ function listingGallery(listing: Listing): string[] {
   const legacy = listing.imageUrl?.trim();
   return legacy ? [legacy] : [""];
 }
-
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "not-found" }
   | { status: "ready"; listing: Listing };
-
-
 function categoryItems(category: string | null) {
   const known = CATEGORIES.map((value) => ({ value, label: value }));
   if (!category || (CATEGORIES as readonly string[]).includes(category)) {
@@ -93,17 +79,12 @@ function categoryItems(category: string | null) {
   }
   return [{ value: category, label: category }, ...known];
 }
-
 export default function EditStudioPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-
-
   const { user, checking } = useRequireAuth();
-
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
   const [submitting, setSubmitting] = React.useState(false);
-
   const [form, setForm] = React.useState<EditForm>({
     title: "",
     category: "",
@@ -116,12 +97,9 @@ export default function EditStudioPage() {
   });
   const [amenities, setAmenities] = React.useState<string[]>([]);
   const [amenityInput, setAmenityInput] = React.useState("");
-
-
   React.useEffect(() => {
     if (!id) return;
     let cancelled = false;
-
     fetch(`${STUDIOS_ENDPOINT}/${id}`)
       .then(async (res) => {
         if (res.status === 404) return { ok: false, notFound: true, data: null };
@@ -153,16 +131,13 @@ export default function EditStudioPage() {
       .catch(() => {
         if (!cancelled) setState({ status: "error" });
       });
-
     return () => {
       cancelled = true;
     };
   }, [id]);
-
   function setField<K extends keyof EditForm>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
-
   function addAmenity() {
     const value = amenityInput.trim();
     if (!value) return;
@@ -173,23 +148,18 @@ export default function EditStudioPage() {
     );
     setAmenityInput("");
   }
-
   function handleAmenityKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter" || event.key === ",") {
       event.preventDefault();
       addAmenity();
     }
   }
-
   function removeAmenity(amenity: string) {
     setAmenities((prev) => prev.filter((item) => item !== amenity));
   }
-
-
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-
     if (
       !form.title.trim() ||
       !form.category ||
@@ -205,10 +175,8 @@ export default function EditStudioPage() {
       });
       return;
     }
-
     setSubmitting(true);
     const gallery = cleanGalleryImages(form.images);
-
     fetch(`${STUDIOS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -220,7 +188,6 @@ export default function EditStudioPage() {
         securityDeposit: form.securityDeposit ? Number(form.securityDeposit) : null,
         maxCapacity: form.maxCapacity ? Number(form.maxCapacity) : null,
         location: form.location.trim(),
-        // gallery: multi-image array; imageUrl mirrors the cover for legacy consumers
         images: gallery,
         imageUrl: gallery[0] ?? "",
         amenities,
@@ -256,15 +223,10 @@ export default function EditStudioPage() {
       })
       .finally(() => setSubmitting(false));
   }
-
-
   if (checking || !user) {
     return <AuthLoadingScreen />;
   }
-
-
   if (state.status === "loading") {
-
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
         <Skeleton className="mb-6 h-4 w-40" />
@@ -273,7 +235,6 @@ export default function EditStudioPage() {
       </main>
     );
   }
-
   if (state.status === "not-found") {
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
@@ -291,7 +252,6 @@ export default function EditStudioPage() {
       </main>
     );
   }
-
   if (state.status === "error") {
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
@@ -312,7 +272,6 @@ export default function EditStudioPage() {
       </main>
     );
   }
-
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
       <Link
@@ -322,7 +281,6 @@ export default function EditStudioPage() {
         <ArrowLeftIcon className="size-4" />
         Back to My Listings
       </Link>
-
       <header className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Update Studio Listing</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -330,12 +288,10 @@ export default function EditStudioPage() {
           live on the marketplace as soon as you save.
         </p>
       </header>
-
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-6 rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8"
       >
-
         <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="sr-only">Owner details</legend>
           <div className="flex flex-col gap-1.5">
@@ -365,8 +321,6 @@ export default function EditStudioPage() {
             </p>
           </div>
         </fieldset>
-
-
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <Label htmlFor="title">
@@ -381,7 +335,6 @@ export default function EditStudioPage() {
               required
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label>
               Category <span className="text-destructive">*</span>
@@ -403,7 +356,6 @@ export default function EditStudioPage() {
               </SelectContent>
             </Select>
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="hourly-rate">
               Hourly Rate ($) <span className="text-destructive">*</span>
@@ -420,7 +372,6 @@ export default function EditStudioPage() {
               required
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="security-deposit">Security Deposit ($)</Label>
             <Input
@@ -434,7 +385,6 @@ export default function EditStudioPage() {
               onChange={(e) => setField("securityDeposit", e.target.value)}
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="max-capacity">Max Capacity</Label>
             <Input
@@ -448,7 +398,6 @@ export default function EditStudioPage() {
               onChange={(e) => setField("maxCapacity", e.target.value)}
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="location">
               Location / Address <span className="text-destructive">*</span>
@@ -462,8 +411,6 @@ export default function EditStudioPage() {
               required
             />
           </div>
-
-          {/* Gallery images — dynamic rows, first URL is the cover */}
           <GalleryImageInput
             value={form.images}
             onChange={(images) =>
@@ -471,8 +418,6 @@ export default function EditStudioPage() {
             }
           />
         </div>
-
-
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="amenities">Amenities</Label>
           <div className="flex gap-2">
@@ -508,8 +453,6 @@ export default function EditStudioPage() {
             </ul>
           )}
         </div>
-
-
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="overview">
             Detailed Overview <span className="text-destructive">*</span>
@@ -525,8 +468,6 @@ export default function EditStudioPage() {
             required
           />
         </div>
-
-
         <div className="flex justify-end gap-3 border-t border-border pt-6">
           <Button
             type="button"

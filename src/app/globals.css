@@ -124,6 +124,41 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Contain the ambient overlay: keeps body::before (z-index -1) above the
+       body background but below all page content */
+    isolation: isolate;
+  }
+
+  /* Ambient blue wash: soft radial glows + a primary-tinted dot grid,
+     pinned to the viewport via position:fixed (works everywhere, unlike
+     background-attachment:fixed). color-mix keeps it theme-aware. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(
+        ellipse 80% 55% at 50% -20%,
+        color-mix(in oklab, var(--primary) 18%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 100% 100%,
+        color-mix(in oklab, var(--primary) 12%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 45% 40% at 0% 80%,
+        color-mix(in oklab, var(--primary) 10%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        color-mix(in oklab, var(--primary) 22%, transparent) 1.2px,
+        transparent 1.3px
+      );
+    background-size: 100% 100%, 100% 100%, 100% 100%, 20px 20px;
   }
   html {
     @apply font-sans;
@@ -220,3 +255,33 @@
   right: 16px;
 }
 .detail-gallery .swiper-notification { display: none; }
+
+/* Compact carousel arrows on small screens — full-size arrows would cover
+   too much of the shorter mobile slides */
+@media (max-width: 639px) {
+  .banner .swiper-button-next,
+  .banner .swiper-button-prev,
+  .detail-gallery .swiper-button-next,
+  .detail-gallery .swiper-button-prev {
+    width: 32px;
+    height: 32px;
+  }
+  .banner .swiper-button-next::after,
+  .banner .swiper-button-prev::after,
+  .detail-gallery .swiper-button-next::after,
+  .detail-gallery .swiper-button-prev::after {
+    font-size: 14px;
+  }
+  .banner .swiper-button-prev {
+    left: 12px;
+  }
+  .banner .swiper-button-next {
+    right: 12px;
+  }
+  .detail-gallery .swiper-button-prev {
+    left: 8px;
+  }
+  .detail-gallery .swiper-button-next {
+    right: 8px;
+  }
+}

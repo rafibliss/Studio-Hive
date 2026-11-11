@@ -1,13 +1,10 @@
 "use client";
-
 import * as React from "react";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
-
-// Official Google "G" logo — no brand icons ship with lucide
 function GoogleGIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
@@ -30,34 +27,21 @@ function GoogleGIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
-/**
- * Shared "Continue with Google" button for the auth pages.
- * Triggers Better Auth's social sign-in; on success Google redirects
- * the full page to `callbackURL` (so pending state just stays on).
- */
 export function GoogleAuthButton({
   label = "Continue with Google",
-  // Default is an ABSOLUTE frontend URL on purpose: Better Auth resolves
-  // relative paths against the BACKEND origin (localhost:8000), so a plain
-  // "/" would land the user on the backend's root JSON response after
-  // Google consent instead of returning to the frontend.
   callbackURL = "http://localhost:3000/",
 }: {
   label?: string;
   callbackURL?: string;
 }) {
   const [pending, setPending] = React.useState(false);
-
   async function handleGoogleSignIn() {
     if (pending) return;
     setPending(true);
-
     const { error } = await authClient.signIn.social({
       provider: "google",
-      callbackURL, // redirects to home after a successful Google login
+      callbackURL,
     });
-
     if (error) {
       setPending(false);
       toast.add({
@@ -69,7 +53,6 @@ export function GoogleAuthButton({
       });
     }
   }
-
   return (
     <Button
       type="button"
@@ -87,8 +70,6 @@ export function GoogleAuthButton({
     </Button>
   );
 }
-
-/** Small "or" divider shown between the email form and the social button */
 export function SocialDivider() {
   return (
     <div className="flex items-center gap-3" aria-label="Or continue with">

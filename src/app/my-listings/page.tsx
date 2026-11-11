@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import {
@@ -33,9 +32,7 @@ import { useRouter } from "next/navigation";
 import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
-
 const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
-
 type Listing = {
     _id: string;
     title: string | null;
@@ -49,12 +46,10 @@ type Listing = {
     hostName: string | null;
     hostEmail: string | null;
 };
-
 type FetchState =
     | { status: "loading" }
     | { status: "error" }
     | { status: "ready"; listings: Listing[] };
-
 function ListingPlaceholder() {
     return (
         <div className="flex h-44 items-center justify-center bg-linear-to-br from-secondary to-background text-muted-foreground">
@@ -62,27 +57,17 @@ function ListingPlaceholder() {
         </div>
     );
 }
-
 export default function MyListingsPage() {
     const router = useRouter();
-
-    // Route protection via Better Auth — private route. `checking` is true
-    // only while the session resolves on load/reload; a signed-out visitor
-    // is redirected to /login (returning here after authentication).
     const { user, checking } = useRequireAuth();
-
     const [state, setState] = React.useState<FetchState>({ status: "loading" });
     const [busy, setBusy] = React.useState(false);
-
-    // Modals
     const [listingToDelete, setListingToDelete] = React.useState<Listing | null>(null);
-
     React.useEffect(() => {
         if (!user?.email) return;
         let cancelled = false;
-
         fetch(`${STUDIOS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
-            credentials: "include", // user-specific data → send the auth cookie
+            credentials: "include",
         })
             .then(async (res) => {
                 if (await handleAuthFailure(res, "/my-listings", router)) return null;
@@ -96,20 +81,16 @@ export default function MyListingsPage() {
             .catch(() => {
                 if (!cancelled) setState({ status: "error" });
             });
-
         return () => {
             cancelled = true;
         };
     }, [user?.email, router]);
-
-    /** DELETE /studios/:id — removes the document from MongoDB */
     function confirmDelete() {
         if (!listingToDelete) return;
         setBusy(true);
-
         fetch(`${STUDIOS_ENDPOINT}/${listingToDelete._id}`, {
             method: "DELETE",
-            credentials: "include", // mutation → send the HTTPOnly auth cookie
+            credentials: "include",
         })
             .then(async (res) => {
                 if (await handleAuthFailure(res, "/my-listings", router)) return;
@@ -150,14 +131,9 @@ export default function MyListingsPage() {
             })
             .finally(() => setBusy(false));
     }
-
-    // Branded loading screen while the session resolves (or the redirect
-    // for signed-out visitors is in flight) — never a flash of content
     if (checking || !user) {
         return <AuthLoadingScreen />;
     }
-
-    // Skeleton while the page's own data loads
     if (state.status === "loading") {
         return (
             <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -171,7 +147,6 @@ export default function MyListingsPage() {
             </main>
         );
     }
-
     if (state.status === "error") {
         return (
             <main className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -194,12 +169,9 @@ export default function MyListingsPage() {
             </main>
         );
     }
-
     const { listings: readyListings } = state;
-
     return (
         <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            {/* Page header */}
             <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <header className="flex flex-col gap-2">
                     <h1 className="text-3xl font-bold tracking-tight">My Studio Listings</h1>
@@ -213,7 +185,6 @@ export default function MyListingsPage() {
                     Add New Studio
                 </Button>
             </div>
-
             {readyListings.length === 0 ? (
                 <Empty className="rounded-xl border bg-card py-16">
                     <EmptyHeader>
@@ -242,8 +213,6 @@ export default function MyListingsPage() {
                     ))}
                 </div>
             )}
-
-            {/* Delete confirmation modal */}
             <Dialog
                 open={listingToDelete != null}
                 onOpenChange={(open) => {
@@ -282,7 +251,6 @@ export default function MyListingsPage() {
         </main>
     );
 }
-
 function ManageCard({
     listing,
     onDelete,
@@ -292,7 +260,6 @@ function ManageCard({
 }) {
     return (
         <Card className="overflow-hidden pt-0 pb-4">
-            {/* Image, themed placeholder when no photo was uploaded */}
             <div className="relative h-44 w-full">
                 {listing.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -312,7 +279,6 @@ function ManageCard({
                     <span className="truncate">{listing.category ?? "Studio"}</span>
                 </Badge>
             </div>
-
             <CardContent className="flex flex-col gap-2 pt-4">
                 <h3 className="text-lg font-semibold tracking-tight">
                     {listing.title ?? "Untitled Studio"}
@@ -328,9 +294,7 @@ function ManageCard({
                     <span className="text-sm text-muted-foreground"> /hour</span>
                 </p>
             </CardContent>
-
             <CardFooter className="flex gap-2 px-4">
-                {/* "Update" navigates to the dedicated edit route */}
                 <Button
                     variant="outline"
                     className="flex-1"

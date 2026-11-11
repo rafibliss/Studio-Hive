@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import {
@@ -22,9 +21,7 @@ import { useRouter } from "next/navigation";
 import { handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
-
 const BOOKINGS_ENDPOINT = "http://localhost:8000/bookings";
-
 type Booking = {
   _id: string;
   studioId: string | null;
@@ -37,20 +34,16 @@ type Booking = {
   status: string | null;
   userEmail: string | null;
 };
-
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "ready"; bookings: Booking[] };
-
-
 const STATUS_STYLES: Record<string, string> = {
   Pending: "border-amber-500/40 bg-amber-500/15 text-amber-700",
   Confirmed: "border-primary/40 bg-primary/10 text-primary",
   Completed: "border-emerald-500/40 bg-emerald-500/15 text-emerald-700",
   Cancelled: "border-border bg-muted text-muted-foreground",
 };
-
 function StatusBadge({ status }: { status: string | null }) {
   const label = status ?? "Pending";
   return (
@@ -62,20 +55,14 @@ function StatusBadge({ status }: { status: string | null }) {
     </Badge>
   );
 }
-
 export default function MyBookingsPage() {
   const router = useRouter();
-
   const { user, checking } = useRequireAuth();
-
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
   const [cancelling, setCancelling] = React.useState<string | null>(null);
-
-
   React.useEffect(() => {
     if (!user?.email) return;
     let cancelled = false;
-
     fetch(`${BOOKINGS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
       credentials: "include",
     })
@@ -94,16 +81,12 @@ export default function MyBookingsPage() {
       .catch(() => {
         if (!cancelled) setState({ status: "error" });
       });
-
     return () => {
       cancelled = true;
     };
   }, [user?.email, router]);
-
-
   function cancelBooking(booking: Booking) {
     setCancelling(booking._id);
-
     fetch(`${BOOKINGS_ENDPOINT}/${booking._id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -123,8 +106,6 @@ export default function MyBookingsPage() {
           });
           return;
         }
-
-
         setState((prev) =>
           prev.status === "ready"
             ? {
@@ -135,7 +116,6 @@ export default function MyBookingsPage() {
             }
             : prev
         );
-
         toast.add({
           title: "Booking cancelled",
           description: `Your ${booking.bookingDate} slot at "${booking.studioTitle ?? "the studio"}" has been cancelled.`,
@@ -151,11 +131,9 @@ export default function MyBookingsPage() {
       })
       .finally(() => setCancelling(null));
   }
-
   if (checking || !user) {
     return <AuthLoadingScreen />;
   }
-
   if (state.status === "loading") {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -169,7 +147,6 @@ export default function MyBookingsPage() {
       </main>
     );
   }
-
   if (state.status === "error") {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -192,9 +169,7 @@ export default function MyBookingsPage() {
       </main>
     );
   }
-
   const bookings = state.status === "ready" ? state.bookings : [];
-
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <header className="mb-10 flex flex-col gap-2">
@@ -204,7 +179,6 @@ export default function MyBookingsPage() {
           cancelled any time before the host confirms.
         </p>
       </header>
-
       {bookings.length === 0 ? (
         <Empty className="rounded-xl border bg-card py-16">
           <EmptyHeader>
@@ -244,7 +218,6 @@ export default function MyBookingsPage() {
                   <StatusBadge status={booking.status} />
                 </div>
               </div>
-
               <CardContent className="flex flex-col gap-2 pt-4">
                 <h3 className="text-lg font-semibold tracking-tight">
                   {booking.studioTitle ?? "Studio session"}
@@ -270,7 +243,6 @@ export default function MyBookingsPage() {
                   <span className="text-sm text-muted-foreground"> /hour</span>
                 </p>
               </CardContent>
-
               {booking.status === "Pending" && (
                 <CardFooter className="px-4">
                   <Button

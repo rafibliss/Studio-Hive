@@ -1,12 +1,6 @@
 import { Aperture, Hexagon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StudioGrid } from "@/components/studios/studio-card";
-
-/**
- * Branded route-transition fallback — the hive mark with a slowly spinning
- * aperture above a layout-matching skeleton grid. Rendered by `loading.tsx`
- * files while Next.js streams the next route so navigation never feels dead.
- */
 export function RouteLoadingScreen() {
   return (
     <main
@@ -14,7 +8,6 @@ export function RouteLoadingScreen() {
       aria-busy="true"
       aria-live="polite"
     >
-      {/* Brand mark */}
       <div className="mb-10 flex justify-center">
         <span className="relative flex size-12 items-center justify-center">
           <Hexagon
@@ -27,8 +20,6 @@ export function RouteLoadingScreen() {
           />
         </span>
       </div>
-
-      {/* Layout-matching skeleton (mirrors the marketplace page grid) */}
       <Skeleton className="mx-auto mb-3 h-8 w-64" />
       <Skeleton className="mx-auto mb-10 h-4 w-96 max-w-full" />
       <StudioGrid>

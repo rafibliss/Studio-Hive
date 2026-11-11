@@ -1,11 +1,9 @@
 "use client";
-
 import Link from "next/link";
 import { useState } from "react";
 import { Hexagon, Aperture, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
@@ -13,8 +11,6 @@ const QUICK_LINKS = [
   { label: "About Us", href: "/#about-us" },
   { label: "Add Your Studio", href: "/add-studio" },
 ] as const;
-
-
 const POPULAR_CATEGORIES = [
   { label: "Photo Studios", value: "Photo Studio" },
   { label: "Sound Stages", value: "Film Stage" },
@@ -22,15 +18,12 @@ const POPULAR_CATEGORIES = [
   { label: "Music Suites", value: "Music Suite" },
   { label: "Art Workshops", value: "Workshop" },
 ] as const;
-
 const SOCIALS = [
   { label: "X", href: "https://x.com/studiohive" },
   { label: "Instagram", href: "https://instagram.com/studiohive" },
   { label: "LinkedIn", href: "https://linkedin.com/company/studiohive" },
   { label: "Facebook", href: "https://facebook.com/studiohive" },
 ] as const;
-
-
 const SOCIAL_ICON_PATHS = {
   Instagram: (
     <>
@@ -50,7 +43,6 @@ const SOCIAL_ICON_PATHS = {
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   ),
 } as const;
-
 function BrandIcon({
   label,
   className,
@@ -73,7 +65,6 @@ function BrandIcon({
     </svg>
   );
 }
-
 function XLogo({ className }: { className?: string }) {
   return (
     <svg
@@ -86,7 +77,6 @@ function XLogo({ className }: { className?: string }) {
     </svg>
   );
 }
-
 function FooterLogo() {
   return (
     <Link
@@ -94,7 +84,6 @@ function FooterLogo() {
       className="flex items-center gap-2"
       aria-label="StudioHive home"
     >
-
       <span className="relative flex size-9 items-center justify-center">
         <Hexagon
           className="absolute size-9 fill-primary-foreground text-primary-foreground"
@@ -108,21 +97,16 @@ function FooterLogo() {
     </Link>
   );
 }
-
 export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-
   function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     if (email.trim()) setSubscribed(true);
   }
-
   return (
     <footer className="border-t border-border bg-primary text-primary-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-
         <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr_1.3fr] lg:py-16">
           <div className="flex flex-col items-start gap-4">
             <FooterLogo />
@@ -132,7 +116,6 @@ export function SiteFooter() {
               workshops — by the hour, from verified hosts, in cities across
               the country.
             </p>
-
             <div className="flex items-center gap-2">
               {SOCIALS.map((social) => (
                 <a
@@ -152,8 +135,6 @@ export function SiteFooter() {
               ))}
             </div>
           </div>
-
-
           <nav aria-label="Footer quick links" className="flex flex-col gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-foreground/60">
               Quick Links
@@ -171,8 +152,6 @@ export function SiteFooter() {
               ))}
             </ul>
           </nav>
-
-
           <nav
             aria-label="Popular studio categories"
             className="flex flex-col gap-3"
@@ -193,8 +172,6 @@ export function SiteFooter() {
               ))}
             </ul>
           </nav>
-
-
           <div className="flex flex-col gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-primary-foreground/60">
               Newsletter
@@ -231,8 +208,6 @@ export function SiteFooter() {
             )}
           </div>
         </div>
-
-
         <div className="flex flex-col items-center justify-between gap-3 border-t border-primary-foreground/15 py-6 text-xs text-primary-foreground/60 sm:flex-row sm:items-center">
           <p>
             © {new Date().getFullYear()} StudioHive. All rights reserved.

@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { cn } from "cn";
 import { MapPinIcon, StarIcon } from "lucide-react";
@@ -11,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-
 export type Studio = {
   _id: string;
   title: string;
@@ -24,11 +22,9 @@ export type Studio = {
   overview: string | null;
   createdAt: string | null;
 };
-
 // TODO: read rating/review count from the studio document once the backend tracks them
 const RATINGS = [4.9, 4.7, 4.8, 4.6, 5, 4.8] as const;
 const RATING_COUNTS = [132, 64, 87, 41, 156, 73] as const;
-
 function ApertureMark() {
   return (
     <svg
@@ -43,7 +39,6 @@ function ApertureMark() {
     </svg>
   );
 }
-
 function StudioPlaceholder() {
   return (
     <div className="flex h-44 items-center justify-center bg-linear-to-br from-secondary to-background">
@@ -51,20 +46,10 @@ function StudioPlaceholder() {
     </div>
   );
 }
-
-/**
- * The canonical studio card used by the Home featured section and the
- * Explore Studios page. Pass `index` so the hardcoded ratings vary per card.
- * The whole card is wrapped in a single <Link> to its detail page; the
- * "View Details" button is a purely visual affordance (pointer-events off,
- * hidden from the a11y tree and tab order) so only one interactive
- * element exists and no Base UI nesting warnings fire.
- */
 export function StudioCard({ studio, index }: { studio: Studio; index: number }) {
   const rating = RATINGS[index % RATINGS.length];
   const ratingCount = RATING_COUNTS[index % RATING_COUNTS.length];
   const detailHref = `/studios/${studio._id}`;
-
   return (
     <Link
       href={detailHref}
@@ -72,7 +57,6 @@ export function StudioCard({ studio, index }: { studio: Studio; index: number })
       className="group block cursor-pointer rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       <Card className="overflow-hidden pt-0 pb-4 transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
-        {/* Image with overlaid title badge */}
         <div className="relative h-44 w-full">
           {studio.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -92,7 +76,6 @@ export function StudioCard({ studio, index }: { studio: Studio; index: number })
             <span className="truncate">{studio.title}</span>
           </Badge>
         </div>
-
         <CardContent className="flex flex-col gap-2 pt-4">
           <p className="text-xs font-semibold tracking-wider text-primary uppercase">
             {studio.category ?? "Studio"}
@@ -101,7 +84,6 @@ export function StudioCard({ studio, index }: { studio: Studio; index: number })
             <MapPinIcon className="size-3.5 shrink-0" />
             <span className="truncate">{studio.location ?? "Location TBA"}</span>
           </p>
-          {/* hardcoded star rating */}
           <p className="flex items-center gap-1 text-sm">
             <StarIcon className="size-3.5 fill-amber-400 text-amber-400" />
             <span className="font-semibold text-foreground">{rating.toFixed(1)}</span>
@@ -114,9 +96,7 @@ export function StudioCard({ studio, index }: { studio: Studio; index: number })
             <span className="text-sm text-muted-foreground"> /hour</span>
           </p>
         </CardContent>
-
         <CardFooter className="px-4">
-          {/* Visual affordance only — the wrapping <Link> handles navigation */}
           <Button
             variant="outline"
             size="lg"
@@ -131,8 +111,6 @@ export function StudioCard({ studio, index }: { studio: Studio; index: number })
     </Link>
   );
 }
-
-/** The shared responsive grid used on the Home and Explore pages. */
 export function StudioGrid({ children }: { children: React.ReactNode }) {
   return (
     <div className={cn("grid gap-6 sm:grid-cols-2 lg:grid-cols-3")}>
@@ -140,7 +118,6 @@ export function StudioGrid({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
 export function StudioGridSkeleton() {
   return (
     <StudioGrid>

@@ -1,9 +1,4 @@
 import { Aperture, Hexagon } from "lucide-react";
-
-/**
- * Branded in-flight screen shown while Better Auth resolves the session
- * on a private route — the hive mark with a slowly spinning aperture.
- */
 export function AuthLoadingScreen() {
   return (
     <main

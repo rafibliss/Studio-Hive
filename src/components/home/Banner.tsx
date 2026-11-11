@@ -1,23 +1,18 @@
 "use client";
-
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, Autoplay, Keyboard, Navigation, Pagination } from "swiper/modules";
 import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-
 type BannerSlide = {
     image: string;
     alt: string;
     headline: string;
     subtext: string;
 };
-
-/** High-res background images (Unsplash) with per-slide copy */
 const SLIDES: BannerSlide[] = [
     {
         image:
@@ -52,12 +47,10 @@ const SLIDES: BannerSlide[] = [
             "Soundproof lounges with broadcast mics, multi-cam setups, and same-day file delivery.",
     },
 ];
-
 export function Banner() {
     return (
         <Swiper
             modules={[A11y, Autoplay, Keyboard, Navigation, Pagination]}
-            // autoplay + loop, dots + arrows, keyboard accessible
             autoplay={{ delay: 5000, disableOnInteraction: false }}
             loop
             pagination={{ clickable: true }}
@@ -69,17 +62,13 @@ export function Banner() {
         >
             {SLIDES.map((slide) => (
                 <SwiperSlide key={slide.image} className="relative">
-                    {/* background image */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={slide.image}
                         alt={slide.alt}
                         className="absolute inset-0 size-full object-cover"
                     />
-                    {/* subtle dark gradient overlay for text contrast */}
                     <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/45 to-black/20" />
-
-                    {/* slide copy + CTA */}
                     <div className="relative flex h-full items-center">
                         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
                             <h2 className="max-w-xl text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
@@ -89,8 +78,8 @@ export function Banner() {
                                 {slide.subtext}
                             </p>
                             <div className="mt-6">
-                                {/* Base UI's `render={<Link/>}` + nativeButton={false} keeps
-                    anchors consistent with <Button asChild> usage */}
+                                {
+}
                                 <Button size="lg" className="h-11 px-6 text-base" render={<Link href="/studios" />} nativeButton={false}>
                                     Explore Studios
                                     <ArrowRightIcon data-icon="inline-end" />

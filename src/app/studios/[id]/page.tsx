@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -54,13 +53,10 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { toast } from "@/components/ui/toast";
 import { handleAuthFailure } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
-
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-
 const STUDIOS_API = "http://localhost:8000/studios";
-
 type StudioDetail = {
   _id: string;
   title: string | null;
@@ -77,18 +73,13 @@ type StudioDetail = {
   hostEmail: string | null;
   createdAt: string | null;
 };
-
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "not-found" }
   | { status: "ready"; studio: StudioDetail };
-
-
 const RATINGS = [4.9, 4.7, 4.8, 4.6, 5, 4.8] as const;
 const RATING_COUNTS = [132, 64, 87, 41, 156, 73] as const;
-
-
 const AMENITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   "Wi-Fi": WifiIcon,
   "Soundproofing": Volume2Icon,
@@ -103,13 +94,11 @@ const AMENITY_ICONS: Record<string, React.ComponentType<{ className?: string }>>
   "Coffee Bar": CoffeeIcon,
   "Private Entrance": DoorOpenIcon,
 };
-
 function AmenityIcon({ amenity }: { amenity: string }) {
   const Icon =
     AMENITY_ICONS[amenity] ?? AMENITY_ICONS["Lighting Grid"];
   return <Icon className="size-3.5" />;
 }
-
 function resolveGallery(studio: StudioDetail): string[] {
   const fromArray = Array.isArray(studio.images)
     ? studio.images.filter(
@@ -120,7 +109,6 @@ function resolveGallery(studio: StudioDetail): string[] {
   const legacy = studio.imageUrl?.trim();
   return legacy ? [legacy] : [];
 }
-
 function StudioGallery({ images, title }: { images: string[]; title: string | null }) {
   return (
     <Swiper
@@ -154,19 +142,15 @@ function StudioGallery({ images, title }: { images: string[]; title: string | nu
     </Swiper>
   );
 }
-
 function BookingDialog({ studio }: { studio: StudioDetail }) {
   const router = useRouter();
-
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const user = session?.user ?? null;
-
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState("");
   const [start, setStart] = React.useState("");
   const [end, setEnd] = React.useState("");
   const [booked, setBooked] = React.useState(false);
-
   const hours =
     start && end && end > start
       ? Math.round(
@@ -177,7 +161,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       ) / 100
       : null;
   const total = studio.hourlyRate != null && hours != null ? studio.hourlyRate * hours : null;
-
   function handleReserve(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!date || !start || !end) {
@@ -196,8 +179,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       });
       return;
     }
-
-
     if (!user) {
       toast.add({
         title: "Please log in",
@@ -208,7 +189,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       router.push(`/login?redirect=/studios/${studio._id}`);
       return;
     }
-
     setBooked(true);
     fetch("http://localhost:8000/bookings", {
       method: "POST",
@@ -244,7 +224,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
           description: `${studio.title ?? "This studio"} · ${date} · ${start} – ${end}. Track it under My Bookings.`,
           type: "success",
         });
-
         setDate("");
         setStart("");
         setEnd("");
@@ -260,10 +239,8 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       })
       .finally(() => setBooked(false));
   }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-
       <Button
         size="lg"
         className="h-11 w-full text-base"
@@ -290,7 +267,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
             Pick your shoot window. The host confirms within 24 hours.
           </DialogDescription>
         </DialogHeader>
-
         <form onSubmit={handleReserve} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="book-date">Date</Label>
@@ -324,8 +300,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
               />
             </div>
           </div>
-
-
           <div className="rounded-lg border bg-muted/40 px-3 py-2.5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">
@@ -341,7 +315,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
               </p>
             ) : null}
           </div>
-
           <DialogFooter className="gap-2">
             <Button
               type="button"
@@ -368,8 +341,6 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
     </Dialog>
   );
 }
-
-
 function StudioDetailSkeleton() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -396,15 +367,12 @@ function StudioDetailSkeleton() {
     </div>
   );
 }
-
 export default function StudioDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
-
   React.useEffect(() => {
     if (!id) return;
     let cancelled = false;
-
     fetch(`${STUDIOS_API}/${id}`)
       .then((res) => {
         if (res.status === 404) return { ok: false, notFound: true, data: null };
@@ -423,16 +391,13 @@ export default function StudioDetailsPage() {
       .catch(() => {
         if (!cancelled) setState({ status: "error" });
       });
-
     return () => {
       cancelled = true;
     };
   }, [id]);
-
   if (state.status === "loading") {
     return <StudioDetailSkeleton />;
   }
-
   if (state.status === "not-found") {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -459,7 +424,6 @@ export default function StudioDetailsPage() {
       </main>
     );
   }
-
   if (state.status === "error") {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -486,14 +450,12 @@ export default function StudioDetailsPage() {
       </main>
     );
   }
-
   const { studio } = state;
   const hostInitials = (studio.hostName ?? "San")
     .split(" ")
     .map((part) => part[0])
     .join("")
     .slice(0, 2);
-
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <Link
@@ -503,11 +465,9 @@ export default function StudioDetailsPage() {
         <ArrowLeftIcon className="size-4" />
         Back to studios
       </Link>
-
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="flex min-w-0 flex-col gap-10">
           <StudioGallery images={resolveGallery(studio)} title={studio.title} />
-
           <section aria-label="Workspace specifications" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{studio.category ?? "Studio"}</Badge>
@@ -537,8 +497,6 @@ export default function StudioDetailsPage() {
               {studio.overview || "No description added yet."}
             </p>
           </section>
-
-          {/* Amenities */}
           <section aria-label="Amenities" className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold tracking-tight">Amenities</h2>
             {studio.amenities && studio.amenities.length > 0 ? (
@@ -570,12 +528,10 @@ export default function StudioDetailsPage() {
               </Empty>
             )}
           </section>
-
           <section aria-label="Host details" className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold tracking-tight">Your Host</h2>
-            <Card className="flex-row items-center gap-4 p-4">
+            <Card className="gap-4 p-4 sm:flex-row sm:items-center">
               <Avatar size="lg">
-
                 <AvatarFallback className="bg-primary/10 text-primary">
                   {hostInitials}
                 </AvatarFallback>
@@ -594,7 +550,7 @@ export default function StudioDetailsPage() {
               </div>
               <Button
                 variant="outline"
-                className="shrink-0"
+                className="w-full shrink-0 sm:w-auto"
                 render={
                   <a href={`mailto:${studio.hostEmail ?? "hosts@studiohive.com"}`} />
                 }
@@ -606,8 +562,6 @@ export default function StudioDetailsPage() {
             </Card>
           </section>
         </div>
-
-        {/* Right column: sticky booking card */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <Card>
             <CardHeader>
@@ -642,19 +596,15 @@ export default function StudioDetailsPage() {
                   </li>
                 )}
               </ul>
-
               <BookingDialog studio={studio} />
             </CardContent>
           </Card>
         </aside>
       </div>
-
-
       <section aria-label="Reviews" className="mt-12 flex flex-col gap-4">
         <h2 className="text-xl font-semibold tracking-tight">
           Reviews ({RATING_COUNTS[studio._id.length % RATING_COUNTS.length]})
         </h2>
-
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">

@@ -7,19 +7,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "lucide-react";
-
-// Snapshot stats — same voice as the rest of the marketing copy
 const STATS = [
   { value: "250+", label: "Studios listed", icon: Building2Icon },
   { value: "12k", label: "Creators booked", icon: UsersIcon },
   { value: "30+", label: "Cities covered", icon: MapPinIcon },
   { value: "4.9", label: "Average rating", icon: StarIcon },
 ] as const;
-
 export function AboutUs() {
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-      {/* Story */}
       <div className="flex flex-col gap-4">
         <p className="text-muted-foreground">
           StudioHive started with a simple frustration: great creative work
@@ -40,7 +36,6 @@ export function AboutUs() {
           owners across the country — so the next big idea never has to
           wait for a room to happen.
         </p>
-
         <div className="mt-2">
           <Button
             variant="outline"
@@ -53,8 +48,6 @@ export function AboutUs() {
           </Button>
         </div>
       </div>
-
-      {/* Snapshot stats */}
       <dl className="grid grid-cols-2 gap-4 self-start">
         {STATS.map((stat) => (
           <div

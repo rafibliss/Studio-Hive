@@ -6,8 +6,6 @@ import {
   MusicIcon,
   PaletteIcon,
 } from "lucide-react";
-
-
 const CATEGORIES = [
   {
     label: "Photo Studios",
@@ -40,7 +38,6 @@ const CATEGORIES = [
     icon: PaletteIcon,
   },
 ] as const;
-
 export function StudioCategories() {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">

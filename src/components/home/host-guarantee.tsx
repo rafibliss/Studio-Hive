@@ -1,6 +1,4 @@
 import { ShieldCheckIcon, BadgeCheckIcon, WrenchIcon, HeadsetIcon } from "lucide-react";
-
-// Platform assurances shown to hosts and creators
 const ASSURANCES = [
   {
     title: "Liability Protection",
@@ -27,7 +25,6 @@ const ASSURANCES = [
     icon: HeadsetIcon,
   },
 ] as const;
-
 export function HostGuarantee() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

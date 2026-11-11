@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -22,19 +21,14 @@ import {
   StudioGrid,
   StudioGridSkeleton,
 } from "@/components/studios/studio-card";
-
 const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
-
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
   { value: "oldest", label: "Oldest First" },
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
 ] as const;
-
 type SortOption = (typeof SORT_OPTIONS)[number]["value"];
-
-// Category values match the labels the backend stores on studio documents
 const CATEGORIES = [
   "Photo Studio",
   "Film Stage",
@@ -42,19 +36,15 @@ const CATEGORIES = [
   "Music Suite",
   "Workshop",
 ] as const;
-
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "ready"; studios: Studio[] };
-
 const INITIAL_FILTERS = {
   search: "",
   category: "All" as string,
   sort: "newest" as SortOption,
 };
-
-// Case-insensitive match on title, location/address, and category label
 function matchesSearch(studio: Studio, query: string) {
   const haystack = [studio.title, studio.location, studio.category]
     .filter(Boolean)
@@ -62,14 +52,11 @@ function matchesSearch(studio: Studio, query: string) {
     .toLowerCase();
   return haystack.includes(query.toLowerCase());
 }
-
-// client-side sorting — null rates are pushed to the bottom either way
 function sortStudios(studios: Studio[], sort: SortOption) {
   const byDate = (studio: Studio) =>
     studio.createdAt ? Date.parse(studio.createdAt) : 0;
   const byRate = (studio: Studio) =>
     studio.hourlyRate ?? Number.POSITIVE_INFINITY;
-
   const sorted = [...studios];
   switch (sort) {
     case "oldest":
@@ -82,22 +69,16 @@ function sortStudios(studios: Studio[], sort: SortOption) {
       sorted.sort((a, b) => byRate(b) - byRate(a));
       break;
     default:
-      // "newest" mirrors the backend's default (createdAt, -1), oldest nulls last
       sorted.sort((a, b) => byDate(b) - byDate(a));
   }
   return sorted;
 }
-
-// Only accept query values that match a known category
 function categoryFromParam(param: string | null) {
   return param && (CATEGORIES as readonly string[]).includes(param)
     ? param
     : "All";
 }
-
 export default function ExploreStudiosPage() {
-  // Wrapping in Suspense lets the page stay statically prerendered —
-  // the content that reads ?category= is client-side rendered.
   return (
     <Suspense
       fallback={
@@ -110,7 +91,6 @@ export default function ExploreStudiosPage() {
     </Suspense>
   );
 }
-
 function ExploreStudiosContent() {
   const searchParams = useSearchParams();
   const [state, setState] = React.useState<FetchState>({ status: "loading" });
@@ -119,10 +99,8 @@ function ExploreStudiosContent() {
     ...INITIAL_FILTERS,
     category: categoryFromParam(searchParams.get("category")),
   }));
-
   React.useEffect(() => {
     let cancelled = false;
-
     fetch(STUDIOS_ENDPOINT)
       .then((res) => {
         if (!res.ok) throw new Error(`Status ${res.status}`);
@@ -136,12 +114,10 @@ function ExploreStudiosContent() {
       .catch(() => {
         if (!cancelled) setState({ status: "error" });
       });
-
     return () => {
       cancelled = true;
     };
   }, [attempt]);
-
   const visibleStudios =
     state.status === "ready"
       ? sortStudios(
@@ -153,10 +129,8 @@ function ExploreStudiosContent() {
           filters.sort
         )
       : [];
-
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      {/* Page header */}
       <header className="mb-8 flex flex-col items-start gap-3">
         <h1 className="text-3xl font-bold tracking-tight">Explore All Studios</h1>
         <p className="max-w-xl text-muted-foreground">
@@ -164,13 +138,11 @@ function ExploreStudiosContent() {
           category, search by name or city, and sort to find your perfect fit.
         </p>
       </header>
-
-      {/* Top control bar */}
       <section
         aria-label="Studio filters"
-        className="mb-8 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-end"
+        className="mb-8 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm md:flex-row md:items-end"
       >
-        <div className="flex flex-col gap-1.5 sm:max-w-xs sm:flex-1">
+        <div className="flex flex-col gap-1.5 md:max-w-xs md:flex-1">
           <Label htmlFor="studio-search" className="sr-only">
             Search studios
           </Label>
@@ -187,8 +159,6 @@ function ExploreStudiosContent() {
             />
           </div>
         </div>
-
-        {/* Category filter buttons */}
         <div
           role="group"
           aria-label="Filter by category"
@@ -214,9 +184,7 @@ function ExploreStudiosContent() {
             );
           })}
         </div>
-
-        {/* Sort dropdown */}
-        <div className="flex flex-col gap-1.5 sm:ml-auto sm:w-56">
+        <div className="flex flex-col gap-1.5 md:ml-auto md:w-56">
           <Label htmlFor="studio-sort" className="sr-only">
             Sort studios
           </Label>
@@ -241,10 +209,7 @@ function ExploreStudiosContent() {
           </Select>
         </div>
       </section>
-
-      {/* States */}
       {state.status === "loading" && <StudioGridSkeleton />}
-
       {state.status === "error" && (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-6 py-14 text-center">
           <p className="font-medium">Couldn&apos;t reach the studio service</p>
@@ -265,7 +230,6 @@ function ExploreStudiosContent() {
           </Button>
         </div>
       )}
-
       {state.status === "ready" && visibleStudios.length === 0 && (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-6 py-14 text-center">
           <p className="font-medium">
@@ -293,7 +257,6 @@ function ExploreStudiosContent() {
           )}
         </div>
       )}
-
       {state.status === "ready" && visibleStudios.length > 0 && (
         <StudioGrid>
           {visibleStudios.map((studio, index) => (

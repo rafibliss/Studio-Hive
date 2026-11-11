@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { cn } from "cn";
 import { Loader2Icon, PlusIcon, XIcon } from "lucide-react";
@@ -23,10 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
-
 const API_ENDPOINT = "http://localhost:8000/add-studio";
-
-// Session drives the read-only host fields; nothing to mock anymore.
 const CATEGORIES = [
   { value: "photo-studio", label: "Photo Studio" },
   { value: "film-stage", label: "Film Stage" },
@@ -34,9 +30,7 @@ const CATEGORIES = [
   { value: "music-suite", label: "Music Suite" },
   { value: "workshop", label: "Workshop" },
 ] as const;
-
 type Category = (typeof CATEGORIES)[number]["value"];
-
 type StudioForm = {
   title: string;
   category: Category | null;
@@ -44,11 +38,9 @@ type StudioForm = {
   securityDeposit: string;
   maxCapacity: string;
   location: string;
-  /** Gallery image URLs — first entry is the cover */
   images: string[];
   overview: string;
 };
-
 const INITIAL_FORM: StudioForm = {
   title: "",
   category: null,
@@ -59,31 +51,20 @@ const INITIAL_FORM: StudioForm = {
   images: [""],
   overview: "",
 };
-
 const initialAmenities = ["Wi-Fi", "Ring Light", "Green Room"] as const;
-
 export default function AddStudioPage() {
   const router = useRouter();
   const [form, setForm] = React.useState<StudioForm>(INITIAL_FORM);
   const [amenities, setAmenities] = React.useState<string[]>([...initialAmenities]);
   const [amenityInput, setAmenityInput] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
-
-  // Route protection via Better Auth — private route. `checking` is true
-  // only while the session resolves on load/reload; a signed-out visitor
-  // is redirected to /login (returning here after authentication).
   const { user, checking } = useRequireAuth();
-
-  // Branded loading screen while the session resolves instead of
-  // rendering the form mid-flight
   if (checking || !user) {
     return <AuthLoadingScreen />;
   }
-
   function setField<K extends keyof StudioForm>(key: K, value: StudioForm[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
-
   function addAmenity() {
     const value = amenityInput.trim();
     if (!value) return;
@@ -94,22 +75,18 @@ export default function AddStudioPage() {
     );
     setAmenityInput("");
   }
-
   function handleAmenityKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter" || event.key === ",") {
-      event.preventDefault(); // don't submit the form
+      event.preventDefault();
       addAmenity();
     }
   }
-
   function removeAmenity(amenity: string) {
     setAmenities((prev) => prev.filter((item) => item !== amenity));
   }
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-
     if (!form.title.trim() || !form.category || !form.hourlyRate || !form.location.trim() || !form.overview.trim()) {
       toast.add({
         title: "Missing required fields",
@@ -118,8 +95,6 @@ export default function AddStudioPage() {
       });
       return;
     }
-
-    // Extra safety net: the session must be present to attribute the listing
     if (!user) {
       toast.add({
         title: "Please log in",
@@ -129,13 +104,9 @@ export default function AddStudioPage() {
       router.replace("/login?redirect=/add-studio");
       return;
     }
-
     const categoryLabel = CATEGORIES.find((c) => c.value === form.category)?.label ?? "";
     const gallery = cleanGalleryImages(form.images);
-
     const payload = {
-      // backend contract: see studio-space-server/index.js POST /add-studio
-      // host identity comes straight from the authenticated session
       hostName: user.name,
       hostEmail: user.email,
       title: form.title.trim(),
@@ -144,33 +115,27 @@ export default function AddStudioPage() {
       securityDeposit: form.securityDeposit ? Number(form.securityDeposit) : null,
       maxCapacity: form.maxCapacity ? Number(form.maxCapacity) : null,
       location: form.location.trim(),
-      // gallery: multi-image array; imageUrl stays as the cover for card previews
       images: gallery,
       imageUrl: gallery[0] ?? "",
       amenities,
       overview: form.overview.trim(),
       createdAt: new Date().toISOString(),
     };
-
     setSubmitting(true);
     try {
       const res = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // send the HTTPOnly auth cookie
+        credentials: "include",
         body: JSON.stringify(payload),
       });
-      // 401 → session expired/absent: toast + return to /login
       if (await handleAuthFailure(res, "/add-studio", router)) return;
-      // backend returns JSON: { message, insertedId } on success, { message, error } on failure
       const data = (await res.json().catch(() => null)) as
         | { message?: string; insertedId?: string }
         | null;
-
       if (!res.ok) {
         throw new Error(data?.message ?? `Request failed with status ${res.status}`);
       }
-
       setForm(INITIAL_FORM);
       setAmenities([]);
       toast.add({
@@ -188,7 +153,6 @@ export default function AddStudioPage() {
       setSubmitting(false);
     }
   }
-
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
       <header className="mb-8">
@@ -197,7 +161,6 @@ export default function AddStudioPage() {
           List your space on StudioHive and start receiving booking requests.
         </p>
       </header>
-
       <form
         onSubmit={handleSubmit}
         className={cn(
@@ -206,7 +169,6 @@ export default function AddStudioPage() {
         )}
         noValidate={false}
       >
-        {/* Owner (read-only, driven by the active session) */}
         <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="sr-only">Owner details</legend>
           <div className="flex flex-col gap-1.5">
@@ -236,8 +198,6 @@ export default function AddStudioPage() {
             </p>
           </div>
         </fieldset>
-
-        {/* Basics */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <Label htmlFor="title">
@@ -252,7 +212,6 @@ export default function AddStudioPage() {
               required
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label>
               Category <span className="text-destructive">*</span>
@@ -274,7 +233,6 @@ export default function AddStudioPage() {
               </SelectContent>
             </Select>
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="hourly-rate">
               Hourly Rate ($) <span className="text-destructive">*</span>
@@ -291,7 +249,6 @@ export default function AddStudioPage() {
               required
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="security-deposit">Security Deposit ($)</Label>
             <Input
@@ -305,7 +262,6 @@ export default function AddStudioPage() {
               onChange={(e) => setField("securityDeposit", e.target.value)}
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="max-capacity">Max Capacity</Label>
             <Input
@@ -319,7 +275,6 @@ export default function AddStudioPage() {
               onChange={(e) => setField("maxCapacity", e.target.value)}
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="location">
               Location / Address <span className="text-destructive">*</span>
@@ -333,8 +288,6 @@ export default function AddStudioPage() {
               required
             />
           </div>
-
-          {/* Gallery images — dynamic rows, first URL is the cover */}
           <GalleryImageInput
             value={form.images}
             onChange={(images) =>
@@ -342,8 +295,6 @@ export default function AddStudioPage() {
             }
           />
         </div>
-
-        {/* Amenities (tags) */}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="amenities">Amenities</Label>
           <div className="flex gap-2">
@@ -379,8 +330,6 @@ export default function AddStudioPage() {
             </ul>
           )}
         </div>
-
-        {/* Overview */}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="overview">
             Detailed Overview <span className="text-destructive">*</span>
@@ -396,8 +345,6 @@ export default function AddStudioPage() {
             required
           />
         </div>
-
-        {/* Submit */}
         <div className="flex justify-end border-t border-border pt-6">
           <Button type="submit" size="lg" disabled={submitting}>
             {submitting && <Loader2Icon className="animate-spin" />}

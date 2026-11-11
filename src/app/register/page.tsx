@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,14 +25,11 @@ import {
   SocialDivider,
 } from "@/components/auth/google-button";
 import { authClient } from "@/lib/auth-client";
-
-
 const PASSWORD_RULES = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
   { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
   { label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
 ] as const;
-
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = React.useState("");
@@ -42,15 +38,12 @@ export default function RegisterPage() {
   const [password, setPassword] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
-
   const ruleStates = PASSWORD_RULES.map((rule) => ({
     label: rule.label,
     passed: rule.test(password),
   }));
   const passwordValid = ruleStates.every((rule) => rule.passed);
   const showChecklist = password.length > 0;
-
   function reportError(message: string) {
     setError(message);
     toast.add({
@@ -59,30 +52,22 @@ export default function RegisterPage() {
       type: "error",
     });
   }
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-
-
     if (!passwordValid) {
       reportError("Password doesn't meet the requirements below.");
       return;
     }
-
     setSubmitting(true);
     setError(null);
-
     try {
-
       const { error: signUpError } = await authClient.signUp.email({
         name: name.trim(),
         email: email.trim(),
         password,
-
         ...(photoUrl.trim() ? { image: photoUrl.trim() } : {}),
       });
-
       if (signUpError) {
         reportError(
           signUpError.message ||
@@ -90,8 +75,6 @@ export default function RegisterPage() {
         );
         return;
       }
-
-
       toast.add({
         title: "Account created",
         description: "Welcome to the hive! Log in with your new credentials.",
@@ -106,7 +89,6 @@ export default function RegisterPage() {
       setSubmitting(false);
     }
   }
-
   return (
     <main className="flex items-center justify-center px-4 py-12 sm:py-16">
       <Card className="w-full max-w-md shadow-md">
@@ -118,10 +100,8 @@ export default function RegisterPage() {
             Join the hive — book creative spaces or list your own studio.
           </CardDescription>
         </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
             {error && (
               <div
                 role="alert"
@@ -131,7 +111,6 @@ export default function RegisterPage() {
                 <span>{error}</span>
               </div>
             )}
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -146,7 +125,6 @@ export default function RegisterPage() {
                 disabled={submitting}
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -162,7 +140,6 @@ export default function RegisterPage() {
                 aria-invalid={error ? true : undefined}
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="photoUrl">
                 Photo URL
@@ -181,7 +158,6 @@ export default function RegisterPage() {
                 disabled={submitting}
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -196,8 +172,6 @@ export default function RegisterPage() {
                 disabled={submitting}
                 aria-invalid={showChecklist && !passwordValid ? true : undefined}
               />
-
-
               {showChecklist && (
                 <ul
                   className="mt-1 flex flex-col gap-1 pl-0.5"
@@ -233,7 +207,6 @@ export default function RegisterPage() {
                 </ul>
               )}
             </div>
-
             <Button
               type="submit"
               disabled={submitting}
@@ -248,13 +221,10 @@ export default function RegisterPage() {
                 "Register"
               )}
             </Button>
-
-            {/* Social sign-up — same Google OAuth flow as login */}
             <SocialDivider />
             <GoogleAuthButton label="Sign up with Google" />
           </form>
         </CardContent>
-
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}

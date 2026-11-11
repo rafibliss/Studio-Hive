@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
@@ -9,7 +8,6 @@ import {
   CalendarCheck,
   ChevronDown,
   Hexagon,
-  // LayoutDashboard,
   LogOut,
   Menu,
   SquarePlus,
@@ -35,23 +33,17 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
-
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
-
   { label: "How It Works", href: "/#how-it-works" },
   { label: "About Us", href: "/#about-us" },
 ] as const;
-
 function isActive(pathname: string, href: string) {
-
   if (href.includes("#")) return false;
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
-
-
 function scrollToHashSection(
   e: ReactMouseEvent<HTMLAnchorElement>,
   href: string,
@@ -64,18 +56,15 @@ function scrollToHashSection(
   const section = document.getElementById(href.slice(hashIndex + 1));
   if (!section) return;
   e.preventDefault();
-
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   section.scrollIntoView({
     behavior: reduceMotion ? "auto" : "smooth",
     block: "start",
   });
 }
-
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2" aria-label="StudioHive home">
-
       <span className="relative flex size-9 items-center justify-center">
         <Hexagon className="absolute size-9 fill-primary text-primary" strokeWidth={1.25} />
         <Aperture className="relative size-4 text-primary-foreground" strokeWidth={2.25} />
@@ -86,29 +75,20 @@ function Logo() {
     </Link>
   );
 }
-
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
-
-
   const [activeSection, setActiveSection] = useState<string | null>(null);
-
   useEffect(() => {
     if (pathname !== "/") return;
-
     const hashLinks = NAV_LINKS.filter((link) => link.href.includes("#"));
     if (hashLinks.length === 0) return;
-
-
     const hrefBySectionId = new Map(
       hashLinks.map((link) => [
         link.href.slice(link.href.indexOf("#") + 1),
         link.href,
       ])
     );
-
-
     const observer = new IntersectionObserver(
       (entries) => {
         setActiveSection((prev) => {
@@ -123,37 +103,26 @@ export function SiteHeader() {
       },
       { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
     );
-
     for (const id of hrefBySectionId.keys()) {
       const section = document.getElementById(id);
       if (section) observer.observe(section);
     }
     return () => observer.disconnect();
   }, [pathname]);
-
-
   const effectiveActiveSection = pathname === "/" ? activeSection : null;
-
-
   const { data: session, isPending: sessionLoading } = authClient.useSession();
   const user = session?.user ?? null;
-
   async function handleSignOut() {
-
     await authClient.signOut();
-
     router.push("/");
     router.refresh();
   }
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-white/80 backdrop-blur-md">
       <div className="mx-auto grid h-16 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <Logo />
         </div>
-
-
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {NAV_LINKS.map((link) => {
             const active =
@@ -178,11 +147,8 @@ export function SiteHeader() {
             );
           })}
         </nav>
-
-
         <div className="flex items-center justify-end gap-2">
           {sessionLoading ? (
-
             <div className="flex items-center gap-2" aria-hidden="true">
               <div className="size-8 animate-pulse rounded-full bg-muted" />
               <div className="hidden h-4 w-20 animate-pulse rounded bg-muted sm:block" />
@@ -220,10 +186,8 @@ export function SiteHeader() {
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                {/* <DropdownMenuItem render={<Link href="/dashboard" />}>
-                  <LayoutDashboard />
-                  Dashboard
-                </DropdownMenuItem> */}
+                {
+}
                 <DropdownMenuItem render={<Link href="/add-studio" />}>
                   <SquarePlus />
                   Add New Studio
@@ -244,7 +208,6 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-
             <div className="flex items-center gap-1">
               <Button variant="ghost" render={<Link href="/login" />} nativeButton={false}>
                 Log in
@@ -258,8 +221,6 @@ export function SiteHeader() {
               </Button>
             </div>
           )}
-
-
           <Sheet>
             <SheetTrigger
               render={
@@ -288,6 +249,7 @@ export function SiteHeader() {
                   return (
                     <SheetTrigger
                       key={link.href}
+                      nativeButton={false}
                       render={
                         <Link
                           href={link.href}

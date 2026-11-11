@@ -7,14 +7,10 @@ import { HowItWorks } from "@/components/home/how-it-works";
 import { HostGuarantee } from "@/components/home/host-guarantee";
 import { AboutUs } from "@/components/home/about-us";
 import { Banner } from "@/components/home/Banner";
-
 export default function Home() {
   return (
     <>
-
       <Banner />
-
-
       <section aria-label="Browse by studio categories">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <header className="mb-10 flex flex-col items-start gap-3">
@@ -26,12 +22,9 @@ export default function Home() {
               page with that category already filtered for you.
             </p>
           </header>
-
           <StudioCategories />
         </div>
       </section>
-
-
       <section className="border-y border-border bg-secondary/40">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <header className="mb-10 flex flex-col items-start gap-3">
@@ -43,10 +36,7 @@ export default function Home() {
               film stages, podcast lounges and more, ready to book by the hour.
             </p>
           </header>
-
           <FeaturedStudios />
-
-
           <div className="mt-12 flex justify-center">
             <Button size="lg" className="h-11 px-7 text-base" render={<Link href="/studios" />} nativeButton={false}>
               Explore All Studios
@@ -55,8 +45,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-
       <section
         id="how-it-works"
         className="scroll-mt-16 border-y border-border bg-secondary/40"
@@ -71,12 +59,9 @@ export default function Home() {
               finding a space and rolling camera.
             </p>
           </header>
-
           <HowItWorks />
         </div>
       </section>
-
-
       <section aria-label="Host guarantee and creator support">
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <header className="mb-10 flex flex-col items-start gap-3">
@@ -88,12 +73,9 @@ export default function Home() {
               backed by platform protections from both sides of the deal.
             </p>
           </header>
-
           <HostGuarantee />
         </div>
       </section>
-
-
       <section
         id="about-us"
         className="scroll-mt-16 border-y border-border bg-secondary/40"
@@ -106,7 +88,6 @@ export default function Home() {
               for creators and hosts alike.
             </p>
           </header>
-
           <AboutUs />
         </div>
       </section>

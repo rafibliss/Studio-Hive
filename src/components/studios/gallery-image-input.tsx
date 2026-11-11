@@ -1,23 +1,15 @@
 "use client";
-
 import * as React from "react";
 import { PlusIcon, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-
-/** Trimmed, de-duplicated gallery URLs sent to the backend */
 export function cleanGalleryImages(images: string[]) {
   const cleaned = images
     .map((url) => url.trim())
     .filter((url) => url !== "");
   return Array.from(new Set(cleaned));
 }
-
-/**
- * Multi-image gallery input for the Add/Edit studio forms — dynamic URL
- * rows with an "Add Image" button. The first row is the cover image.
- */
 export function GalleryImageInput({
   value,
   onChange,
@@ -28,7 +20,6 @@ export function GalleryImageInput({
   function setRow(index: number, url: string) {
     onChange(value.map((current, i) => (i === index ? url : current)));
   }
-
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor="gallery-image-0">Gallery Images</Label>
