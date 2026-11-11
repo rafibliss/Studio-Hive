@@ -3,13 +3,14 @@ import * as React from "react";
 import Link from "next/link";
 import { RotateCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Studio,
   StudioCard,
   StudioGrid,
   StudioGridSkeleton,
 } from "@/components/studios/studio-card";
-const STUDIOS_ENDPOINT = "http://localhost:8000/studios?limit=6";
+const STUDIOS_ENDPOINT = `${API_BASE_URL}/studios?limit=6`;
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
@@ -43,8 +44,8 @@ export function FeaturedStudios() {
         <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-6 py-14 text-center">
           <p className="font-medium">Couldn&apos;t reach the studio service</p>
           <p className="max-w-md text-sm text-muted-foreground">
-            The featured studios could not be loaded. Make sure the backend on
-            localhost:8000 is running, then try again.
+            The featured studios could not be loaded. Make sure the backend
+            server is running, then try again.
           </p>
           <Button
             variant="outline"

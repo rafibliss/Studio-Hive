@@ -29,7 +29,7 @@ function GoogleGIcon({ className }: { className?: string }) {
 }
 export function GoogleAuthButton({
   label = "Continue with Google",
-  callbackURL = "http://localhost:3000/",
+  callbackURL = "/",
 }: {
   label?: string;
   callbackURL?: string;

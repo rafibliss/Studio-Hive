@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SearchIcon, RotateCwIcon, SlidersHorizontalIcon } from "lucide-react";
 import { cn } from "cn";
+import { API_BASE_URL } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ import {
   StudioGrid,
   StudioGridSkeleton,
 } from "@/components/studios/studio-card";
-const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
+const STUDIOS_ENDPOINT = `${API_BASE_URL}/studios`;
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
   { value: "oldest", label: "Oldest First" },
@@ -214,8 +215,8 @@ function ExploreStudiosContent() {
         <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-6 py-14 text-center">
           <p className="font-medium">Couldn&apos;t reach the studio service</p>
           <p className="max-w-md text-sm text-muted-foreground">
-            Studios could not be loaded. Make sure the backend on localhost:8000
-            is running, then try again.
+            Studios could not be loaded. Make sure the backend server is
+            running, then try again.
           </p>
           <Button
             variant="outline"

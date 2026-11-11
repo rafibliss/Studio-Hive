@@ -29,10 +29,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StudioGrid } from "@/components/studios/studio-card";
 import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
-import { handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
-const STUDIOS_ENDPOINT = "http://localhost:8000/studios";
+const STUDIOS_ENDPOINT = `${API_BASE_URL}/studios`;
 type Listing = {
     _id: string;
     title: string | null;
@@ -154,7 +154,7 @@ export default function MyListingsPage() {
                     <CardContent className="flex flex-col items-center gap-4 py-6">
                         <p className="font-medium">Couldn&apos;t load your listings</p>
                         <p className="text-sm text-muted-foreground">
-                            Make sure the backend on localhost:8000 is running, then try again.
+                            Make sure the backend server is running, then try again.
                         </p>
                         <Button
                             variant="outline"

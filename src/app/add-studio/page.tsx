@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
-import { handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
 import {
   cleanGalleryImages,
   GalleryImageInput,
@@ -22,7 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
-const API_ENDPOINT = "http://localhost:8000/add-studio";
+const API_ENDPOINT = `${API_BASE_URL}/add-studio`;
 const CATEGORIES = [
   { value: "photo-studio", label: "Photo Studio" },
   { value: "film-stage", label: "Film Stage" },

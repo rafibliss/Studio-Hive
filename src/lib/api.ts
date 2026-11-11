@@ -1,5 +1,9 @@
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
+
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:8000";
+
 export async function handleAuthFailure(
   res: Response,
   redirectPath: string,

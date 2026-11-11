@@ -51,12 +51,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { toast } from "@/components/ui/toast";
-import { handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-const STUDIOS_API = "http://localhost:8000/studios";
+const STUDIOS_API = `${API_BASE_URL}/studios`;
 type StudioDetail = {
   _id: string;
   title: string | null;
@@ -190,7 +190,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       return;
     }
     setBooked(true);
-    fetch("http://localhost:8000/bookings", {
+    fetch(`${API_BASE_URL}/bookings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -435,7 +435,7 @@ export default function StudioDetailsPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <p className="text-muted-foreground">
-              Make sure the backend on localhost:8000 is running, then reload
+              Make sure the backend server is running, then reload
               the page.
             </p>
             <Button
