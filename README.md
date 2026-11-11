@@ -37,7 +37,7 @@ StudioSpace is a high-performance peer-to-peer marketplace designed for creators
 
 ### Backend
 - **Runtime**: Node.js & Express.js
-- **Database**: MongoDB & Mongoose ORM
+- **Database**: MongoDB 
 - **Authentication**: Better Auth (Google OAuth) + JWT Cookie Security
 
 ---
