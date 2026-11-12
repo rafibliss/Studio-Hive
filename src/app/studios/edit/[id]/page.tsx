@@ -21,7 +21,7 @@ import {
   cleanGalleryImages,
   GalleryImageInput,
 } from "@/components/studios/gallery-image-input";
-import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, apiFetch, handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 const STUDIOS_ENDPOINT = `${API_BASE_URL}/studios`;
@@ -100,7 +100,7 @@ export default function EditStudioPage() {
   React.useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    fetch(`${STUDIOS_ENDPOINT}/${id}`)
+    apiFetch(`${STUDIOS_ENDPOINT}/${id}`)
       .then(async (res) => {
         if (res.status === 404) return { ok: false, notFound: true, data: null };
         if (!res.ok) return { ok: false, notFound: false, data: null };
@@ -177,7 +177,7 @@ export default function EditStudioPage() {
     }
     setSubmitting(true);
     const gallery = cleanGalleryImages(form.images);
-    fetch(`${STUDIOS_ENDPOINT}/${id}`, {
+    apiFetch(`${STUDIOS_ENDPOINT}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

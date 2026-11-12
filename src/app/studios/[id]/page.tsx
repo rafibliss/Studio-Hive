@@ -51,7 +51,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { toast } from "@/components/ui/toast";
-import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, apiFetch, handleAuthFailure } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -190,7 +190,7 @@ function BookingDialog({ studio }: { studio: StudioDetail }) {
       return;
     }
     setBooked(true);
-    fetch(`${API_BASE_URL}/bookings`, {
+    apiFetch(`${API_BASE_URL}/bookings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -373,7 +373,7 @@ export default function StudioDetailsPage() {
   React.useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    fetch(`${STUDIOS_API}/${id}`)
+    apiFetch(`${STUDIOS_API}/${id}`)
       .then((res) => {
         if (res.status === 404) return { ok: false, notFound: true, data: null };
         if (!res.ok) return { ok: false, notFound: false, data: null };

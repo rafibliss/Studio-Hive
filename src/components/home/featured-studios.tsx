@@ -3,7 +3,7 @@ import * as React from "react";
 import Link from "next/link";
 import { RotateCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL, apiFetch } from "@/lib/api";
 import {
   Studio,
   StudioCard,
@@ -20,7 +20,7 @@ export function FeaturedStudios() {
   const [attempt, setAttempt] = React.useState(0);
   React.useEffect(() => {
     let cancelled = false;
-    fetch(STUDIOS_ENDPOINT)
+    apiFetch(STUDIOS_ENDPOINT)
       .then((res) => {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();

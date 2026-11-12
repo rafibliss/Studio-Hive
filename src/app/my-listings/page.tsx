@@ -29,7 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StudioGrid } from "@/components/studios/studio-card";
 import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
-import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, apiFetch, handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 const STUDIOS_ENDPOINT = `${API_BASE_URL}/studios`;
@@ -66,7 +66,7 @@ export default function MyListingsPage() {
     React.useEffect(() => {
         if (!user?.email) return;
         let cancelled = false;
-        fetch(`${STUDIOS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
+        apiFetch(`${STUDIOS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
             credentials: "include",
         })
             .then(async (res) => {
@@ -88,7 +88,7 @@ export default function MyListingsPage() {
     function confirmDelete() {
         if (!listingToDelete) return;
         setBusy(true);
-        fetch(`${STUDIOS_ENDPOINT}/${listingToDelete._id}`, {
+        apiFetch(`${STUDIOS_ENDPOINT}/${listingToDelete._id}`, {
             method: "DELETE",
             credentials: "include",
         })

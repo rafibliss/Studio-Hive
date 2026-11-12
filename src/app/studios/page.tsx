@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SearchIcon, RotateCwIcon, SlidersHorizontalIcon } from "lucide-react";
 import { cn } from "cn";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL, apiFetch } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -102,7 +102,7 @@ function ExploreStudiosContent() {
   }));
   React.useEffect(() => {
     let cancelled = false;
-    fetch(STUDIOS_ENDPOINT)
+    apiFetch(STUDIOS_ENDPOINT)
       .then((res) => {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();

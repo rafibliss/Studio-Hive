@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
-import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, apiFetch, handleAuthFailure } from "@/lib/api";
 import {
   cleanGalleryImages,
   GalleryImageInput,
@@ -123,7 +123,7 @@ export default function AddStudioPage() {
     };
     setSubmitting(true);
     try {
-      const res = await fetch(API_ENDPOINT, {
+      const res = await apiFetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

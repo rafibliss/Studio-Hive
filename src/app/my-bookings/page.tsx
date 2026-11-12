@@ -18,7 +18,7 @@ import { StudioGrid } from "@/components/studios/studio-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
-import { API_BASE_URL, handleAuthFailure } from "@/lib/api";
+import { API_BASE_URL, apiFetch, handleAuthFailure } from "@/lib/api";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { AuthLoadingScreen } from "@/components/auth/auth-loading-screen";
 const BOOKINGS_ENDPOINT = `${API_BASE_URL}/bookings`;
@@ -63,7 +63,7 @@ export default function MyBookingsPage() {
   React.useEffect(() => {
     if (!user?.email) return;
     let cancelled = false;
-    fetch(`${BOOKINGS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
+    apiFetch(`${BOOKINGS_ENDPOINT}?email=${encodeURIComponent(user.email)}`, {
       credentials: "include",
     })
       .then(async (res) => {
@@ -87,7 +87,7 @@ export default function MyBookingsPage() {
   }, [user?.email, router]);
   function cancelBooking(booking: Booking) {
     setCancelling(booking._id);
-    fetch(`${BOOKINGS_ENDPOINT}/${booking._id}`, {
+    apiFetch(`${BOOKINGS_ENDPOINT}/${booking._id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Cancelled" }),
