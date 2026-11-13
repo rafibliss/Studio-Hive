@@ -189,7 +189,11 @@ export function SiteHeader() {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 {
-}
+                }
+                <DropdownMenuItem render={<Link href="/dashboard" />}>
+                  <SquarePlus />
+                  Dashboard
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/add-studio" />}>
                   <SquarePlus />
                   Add New Studio
