@@ -3,11 +3,7 @@ import { jwt } from "better-auth/plugins";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { Db, MongoClient } from "mongodb";
 
-/**
- * Cache the MongoClient across dev hot-reloads so we don't open a new
- * connection pool on every module re-evaluation. Created lazily so the
- * module can be imported during build without MONGODB_URI configured.
- */
+
 const globalForAuth = globalThis as unknown as {
   mongoClient?: MongoClient;
   mongoDb?: Db;
@@ -28,7 +24,6 @@ function getMongoDb(): { client: MongoClient; db: Db } {
 }
 
 export const auth = betterAuth({
-  // Must be reachable by the browser for OAuth callbacks and cookie settings.
   baseURL: process.env.BETTER_AUTH_URL,
   database: (options: BetterAuthOptions) => {
     const { client, db } = getMongoDb();
@@ -43,9 +38,6 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     },
   },
-  // Allow the Express API origin (redirects/CORS) and common dev hosts, so
-  // sign-in POSTs pass the origin check no matter which host the app is
-  // browsed from (localhost, 127.0.0.1, etc.).
   trustedOrigins: [
     ...(process.env.NODE_ENV !== "production"
       ? ["http://localhost:3000", "http://127.0.0.1:3000"]
@@ -55,8 +47,6 @@ export const auth = betterAuth({
       : []),
   ].filter(Boolean),
   plugins: [
-    // Issues JWTs (GET /api/auth/token) verifiable against GET /api/auth/jwks
-    // by our external Express API.
     jwt(),
   ],
 });

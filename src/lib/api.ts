@@ -1,24 +1,19 @@
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
 
-/** Base URL of the external Express API. */
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const isDev = process.env.NODE_ENV !== "production";
-/** Set NEXT_PUBLIC_DEBUG_AUTH=1 to log the full JWT (dev debugging only). */
+
 const fullTokenLogging = process.env.NEXT_PUBLIC_DEBUG_AUTH === "1";
 
 function describeToken(token: string): string {
   return `"${token.slice(0, 12)}…" (${token.length} chars)`;
 }
 
-/**
- * Fallback: fetch the token endpoint directly with a RELATIVE URL (always
- * same-origin, so cookies and CORS can't interfere). Used when
- * `authClient.token()` fails, so a misconfigured client baseURL can't break
- * authenticated API calls — and its status/body reveal the real cause.
- */
+
 async function getJwtTokenDirectly(): Promise<string | null> {
   try {
     const res = await fetch("/api/auth/token", { credentials: "include" });
@@ -53,13 +48,7 @@ async function getJwtTokenDirectly(): Promise<string | null> {
   }
 }
 
-/**
- * Retrieves a FRESH JWT from Better Auth's jwt() plugin (GET /api/auth/token)
- * on every call — the server signs a new short-lived token each time, so
- * there is no client-side caching. Returns `null` when there is no active
- * session (normal for logged-out visitors on public pages — logged quietly)
- * or the token endpoint fails unexpectedly (logged loudly + direct fallback).
- */
+
 export async function getJwtToken(): Promise<string | null> {
   const result = await authClient.token().catch((thrown: unknown) => {
     console.error(
@@ -75,8 +64,7 @@ export async function getJwtToken(): Promise<string | null> {
   const { data, error } = result;
   if (error) {
     if (error.status === 401) {
-      // No active session — expected for logged-out visitors. Keep it quiet
-      // so it doesn't spam the Next.js dev overlay as a console error.
+
       if (isDev) {
         console.debug(
           "[auth] no active session (401 from /token) — request will be sent without an Authorization header"
@@ -84,8 +72,7 @@ export async function getJwtToken(): Promise<string | null> {
       }
       return null;
     }
-    // Unexpected failure (5xx, network, malformed response) — diagnose loudly
-    // and try the direct same-origin fallback.
+
     console.error("[auth] authClient.token() failed unexpectedly:", error);
     return getJwtTokenDirectly();
   }
@@ -104,12 +91,7 @@ export async function getJwtToken(): Promise<string | null> {
   return token;
 }
 
-/**
- * fetch wrapper for calls to the external Express API. Always retrieves a
- * fresh JWT first and attaches it as `Authorization: Bearer <token>`; if no
- * token is available the request is still sent (so public endpoints work),
- * but a warning is logged so missing-token bugs are visible.
- */
+
 export async function apiFetch(
   url: string,
   init: RequestInit = {}
@@ -125,7 +107,6 @@ export async function apiFetch(
       );
     }
   } else {
-    // getJwtToken() already logged why (usually: no active session).
     if (isDev) {
       console.debug(`[api] ${method} ${url} → no Authorization header attached`);
     }
@@ -143,8 +124,6 @@ export async function handleAuthFailure(
   navigate: { push: (url: string) => void }
 ): Promise<boolean> {
   if (res.status !== 401) return false;
-  // Surface the backend's own 401 reason (e.g. invalid JWT vs. expired
-  // session) instead of always assuming the session expired.
   const detail = (await res
     .clone()
     .json()
