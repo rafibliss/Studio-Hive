@@ -33,6 +33,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
@@ -118,7 +119,7 @@ export function SiteHeader() {
     router.refresh();
   }
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto grid h-16 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <Logo />
@@ -148,6 +149,7 @@ export function SiteHeader() {
           })}
         </nav>
         <div className="flex items-center justify-end gap-2">
+          <ThemeToggle />
           {sessionLoading ? (
             <div className="flex items-center gap-2" aria-hidden="true">
               <div className="size-8 animate-pulse rounded-full bg-muted" />
@@ -240,7 +242,7 @@ export function SiteHeader() {
                 </SheetTitle>
               </SheetHeader>
               <Separator />
-              <nav className="flex flex-col gap-1 px-4" aria-label="Mobile navigation">
+              <nav className="flex flex-1 flex-col gap-1 px-4" aria-label="Mobile navigation">
                 {NAV_LINKS.map((link) => {
                   const active =
                     link.href.includes("#")
@@ -269,6 +271,10 @@ export function SiteHeader() {
                   );
                 })}
               </nav>
+              <div className="flex items-center gap-2 px-4 pb-2">
+                <span className="text-sm text-muted-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
             </SheetContent>
           </Sheet>
         </div>
