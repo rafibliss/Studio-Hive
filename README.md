@@ -11,7 +11,7 @@ StudioSpace is a high-performance peer-to-peer marketplace designed for creators
 
 ## 🌐 Live Site & Repository Links
 
-- **Live Web Application**: [https://studiospace.vercel.app](https://studiospace.vercel.app) *(Replace with your actual deployed URL)*
+- **Live Web Application**: [https://studiospace.vercel.app](https://studio-space-kohl.vercel.app/) *(Replace with your actual deployed URL)*
 - **Client Repository**: [https://github.com/your-username/studio-space-client](https://github.com/your-username/studio-space-client)
 - **Server Repository**: [https://github.com/your-username/studio-space-server](https://github.com/your-username/studio-space-server)
 
